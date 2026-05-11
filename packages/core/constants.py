@@ -1,0 +1,22 @@
+# Rubric
+MAX_DIMENSION_SCORE = 3
+DIMENSION_COUNT = 4
+MAX_RAW_TOTAL = MAX_DIMENSION_SCORE * DIMENSION_COUNT  # 12
+
+# Score thresholds
+# ARCHITECT_THRESHOLD = 80.0
+# DEVELOPER_THRESHOLD = 55.0
+# LEARNER_THRESHOLD = 30.0
+
+# Phase 1 weights — resume signal only
+DECLARED_WEIGHT = 1.0
+DEMONSTRATED_WEIGHT = 0.0  # Phase 2
+CONTEXTUAL_WEIGHT = 0.0    # Phase 2
+
+# Score thresholds
+EXPERT_THRESHOLD = 80.0       # was ARCHITECT_THRESHOLD
+PROFICIENT_THRESHOLD = 55.0   # was DEVELOPER_THRESHOLD
+DEVELOPING_THRESHOLD = 30.0   # was LEARNER_THRESHOLD
+# Normalize function
+def normalize_score(raw_total: int) -> float:
+    return round((raw_total / MAX_RAW_TOTAL) * 100, 1)
