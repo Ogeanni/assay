@@ -58,3 +58,9 @@ app.include_router(jobs.router, prefix="/api/v1")
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "assay"}
+
+
+@app.get("/debug-cors")
+async def debug_cors():
+    from apps.api.config import settings
+    return {"allowed_origins": settings.get_allowed_origins()}

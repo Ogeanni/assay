@@ -37,7 +37,7 @@ export const searchJobs = (role, location, page = 1) =>
 
 export const getReportHistory = () => api.get('/report/history')
 
-// SSE streaming — not axios, uses native EventSource
+// SSE streaming — not axios, uses the native EventSource
 export const streamReport = (resumeId, targetRole, token) => {
   const url = `${BASE_URL}/report/stream?resume_id=${resumeId}&target_role=${encodeURIComponent(targetRole)}`
   return new EventSource(url, {
