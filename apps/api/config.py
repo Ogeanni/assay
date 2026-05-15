@@ -28,9 +28,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: Any = None
     BACKEND_URL: str = "https://assay-api-90x3.onrender.com/api/v1"
 
-    # ── Vector store ──────────────────────────────────
-    # development  → chromadb  (local, no account needed)
-    # production   → pinecone  (managed, namespace isolation)
+
     VECTOR_STORE_BACKEND: Literal["chromadb", "pinecone"] = "chromadb"
 
     CHROMA_PERSIST_DIR: str = "data/chroma"
