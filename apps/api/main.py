@@ -54,7 +54,6 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(resume.router, prefix="/api/v1")
 app.include_router(report.router, prefix="/api/v1")
 app.include_router(jobs.router, prefix="/api/v1")
-app.include_router(oauth.router, prefix="/api/v1")
 
 @app.get("/health")
 async def health():
