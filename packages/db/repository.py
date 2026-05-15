@@ -117,10 +117,6 @@ class ResumeRepository:
     ) -> Resume:
         file_hash = self.hash_pdf(pdf_bytes)
 
-        # Calculate average parser confidence across projects
-        confidences = [p.parser_confidence for p in profile.work_signals]
-        avg_confidence = sum(confidences) / len(confidences) if confidences else None
-
         understatement = any(p.understatement_detected for p in profile.work_signals)
 
         resume = Resume(
@@ -130,7 +126,6 @@ class ResumeRepository:
             original_filename=original_filename,
             raw_text=profile.raw_text,
             parsed_profile=profile.model_dump(),
-            parse_confidence=avg_confidence,
             understatement_detected=understatement,
         )
         self.session.add(resume)
