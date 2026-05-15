@@ -1,18 +1,28 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from pydantic import BaseModel, EmailStr
 import logging
-
 import secrets
+import httpx
 from datetime import datetime, timedelta, timezone
 
+from apps.api.config import settings
 from apps.api.dependencies import get_current_user, get_db
 from packages.db.models import User
 from apps.api.auth import hash_password, verify_password, create_access_token
 
 logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/auth", tags=["auth"])
 
+GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
+ 
+LINKEDIN_AUTH_URL = "https://www.linkedin.com/oauth/v2/authorization"
+LINKEDIN_TOKEN_URL = "https://www.linkedin.com/oauth/v2/accessToken"
+LINKEDIN_USERINFO_URL = "https://api.linkedin.com/v2/userinfo"
 
 
 async def send_reset_email(email: str, name: str, token: str) -> None:
@@ -69,7 +79,7 @@ async def send_reset_email(email: str, name: str, token: str) -> None:
         if response.status_code != 200:
             logger.error(f"Resend error: {response.text}")
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+
 
 class RegisterRequest(BaseModel):
     name: str
@@ -90,6 +100,160 @@ class ForgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     password: str
+
+
+# ── Google ────────────────────────────────────────────
+ 
+@router.get("/google")
+async def google_login():
+    params = {
+        "client_id": settings.GOOGLE_CLIENT_ID,
+        "redirect_uri": f"{settings.BACKEND_URL}/auth/google/callback",
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "offline",
+    }
+    url = GOOGLE_AUTH_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
+    return RedirectResponse(url)
+
+
+
+@router.get("/google/callback")
+async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
+    try:
+        async with httpx.AsyncClient() as client:
+            # Exchange code for token
+            token_res = await client.post(GOOGLE_TOKEN_URL, data={
+                "code": code,
+                "client_id": settings.GOOGLE_CLIENT_ID,
+                "client_secret": settings.GOOGLE_CLIENT_SECRET,
+                "redirect_uri": f"{settings.BACKEND_URL}/auth/google/callback",
+                "grant_type": "authorization_code",
+            })
+            token_data = token_res.json()
+            access_token = token_data.get("access_token")
+ 
+            if not access_token:
+                raise HTTPException(status_code=400, detail="Failed to get access token from Google")
+ 
+            # Get user info
+            userinfo_res = await client.get(
+                GOOGLE_USERINFO_URL,
+                headers={"Authorization": f"Bearer {access_token}"}
+            )
+            userinfo = userinfo_res.json()
+ 
+        email = userinfo.get("email")
+        name = userinfo.get("name", email.split("@")[0])
+ 
+        if not email:
+            raise HTTPException(status_code=400, detail="No email returned from Google")
+ 
+        # Find or create user
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+ 
+        if not user:
+            user = User(
+                name=name,
+                email=email,
+                hashed_password=hash_password(secrets.token_hex(16)),
+                onboarding_completed=False,
+            )
+            db.add(user)
+            await db.flush()
+            is_new = True
+        else:
+            is_new = False
+ 
+        jwt = create_access_token(str(user.id))
+        redirect = f"{settings.FRONTEND_URL}/oauth/callback?token={jwt}&new={str(is_new).lower()}"
+        return RedirectResponse(redirect)
+ 
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Google OAuth error: {e}", exc_info=True)
+        return RedirectResponse(f"{settings.FRONTEND_URL}/login?error=google_failed")
+ 
+
+
+# ── LinkedIn ──────────────────────────────────────────
+ 
+@router.get("/linkedin")
+async def linkedin_login():
+    params = {
+        "response_type": "code",
+        "client_id": settings.LINKEDIN_CLIENT_ID,
+        "redirect_uri": f"{settings.BACKEND_URL}/auth/linkedin/callback",
+        "scope": "openid profile email",
+    }
+    url = LINKEDIN_AUTH_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
+    return RedirectResponse(url)
+
+
+@router.get("/linkedin/callback")
+async def linkedin_callback(code: str, db: AsyncSession = Depends(get_db)):
+    try:
+        async with httpx.AsyncClient() as client:
+            # Exchange code for token
+            token_res = await client.post(LINKEDIN_TOKEN_URL, data={
+                "grant_type": "authorization_code",
+                "code": code,
+                "redirect_uri": f"{settings.BACKEND_URL}/auth/linkedin/callback",
+                "client_id": settings.LINKEDIN_CLIENT_ID,
+                "client_secret": settings.LINKEDIN_CLIENT_SECRET,
+            }, headers={"Content-Type": "application/x-www-form-urlencoded"})
+            token_data = token_res.json()
+            access_token = token_data.get("access_token")
+ 
+            if not access_token:
+                raise HTTPException(status_code=400, detail="Failed to get access token from LinkedIn")
+ 
+            # Get user info using OpenID Connect endpoint
+            userinfo_res = await client.get(
+                LINKEDIN_USERINFO_URL,
+                headers={"Authorization": f"Bearer {access_token}"}
+            )
+            userinfo = userinfo_res.json()
+ 
+        email = userinfo.get("email")
+        name = userinfo.get("name") or f"{userinfo.get('given_name','')} {userinfo.get('family_name','')}".strip()
+ 
+        if not email:
+            raise HTTPException(status_code=400, detail="No email returned from LinkedIn")
+ 
+        # Find or create user
+        result = await db.execute(select(User).where(User.email == email))
+        user = result.scalar_one_or_none()
+ 
+        if not user:
+            user = User(
+                name=name or email.split("@")[0],
+                email=email,
+                hashed_password=hash_password(secrets.token_hex(16)),
+                onboarding_completed=False,
+            )
+            db.add(user)
+            await db.flush()
+            is_new = True
+        else:
+            is_new = False
+ 
+        jwt = create_access_token(str(user.id))
+        redirect = f"{settings.FRONTEND_URL}/oauth/callback?token={jwt}&new={str(is_new).lower()}"
+        return RedirectResponse(redirect)
+ 
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"LinkedIn OAuth error: {e}", exc_info=True)
+        return RedirectResponse(f"{settings.FRONTEND_URL}/login?error=linkedin_failed")
+ 
+
+
+
+
 
 
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)

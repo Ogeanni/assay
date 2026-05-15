@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     CHAT_MODEL: str = "gpt-4o-mini"
     EMBEDDING_MODEL: str = "text-embedding-3-small"
     ALLOWED_ORIGINS: Any = None
+    BACKEND_URL = "https://assay-api-90x3.onrender.com/api/v1"
 
     # ── Vector store ──────────────────────────────────
     # development  → chromadb  (local, no account needed)
@@ -38,6 +39,12 @@ class Settings(BaseSettings):
     PINECONE_API_KEY: Optional[str] = Field(default=None)
     PINECONE_INDEX_NAME: str = "assay-knowledge"
     PINECONE_DEFAULT_NAMESPACE: str = "global"
+
+     # ── OAuth ────────────────────────────────────────
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    LINKEDIN_CLIENT_ID: str = ""
+    LINKEDIN_CLIENT_SECRET: str = ""
 
     # ── Job search ────────────────────────────────────
     ADZUNA_API_ID: str = ""

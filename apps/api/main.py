@@ -12,7 +12,7 @@ from packages.pipeline.parser.resume_parser import ResumeParser
 from packages.pipeline.vector.embeddings import EmbeddingPipeline
 from packages.pipeline.vector.store import get_vector_store
 
-from apps.api.routers import auth, resume, report, jobs
+from apps.api.routers import auth, resume, report, jobs, oauth
 
 logger = logging.getLogger(__name__)
 
@@ -54,13 +54,8 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(resume.router, prefix="/api/v1")
 app.include_router(report.router, prefix="/api/v1")
 app.include_router(jobs.router, prefix="/api/v1")
+app.include_router(oauth.router, prefix="/api/v1")
 
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "assay"}
-
-
-@app.get("/debug-cors")
-async def debug_cors():
-    from apps.api.config import settings
-    return {"allowed_origins": settings.get_allowed_origins()}

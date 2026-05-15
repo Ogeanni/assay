@@ -14,6 +14,7 @@ import Report from './pages/Report'
 import Dashboard from './pages/Dashboard'
 import Jobs from './pages/Jobs'
 import Welcome from './pages/Welcome'
+import OAuthCallback from './pages/OAuthCallback'
 
 import './index.css'
 
@@ -68,6 +69,7 @@ createRoot(document.getElementById('root')).render(
               </ProtectedRoute>
             }
           />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
