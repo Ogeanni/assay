@@ -12,7 +12,7 @@ from packages.pipeline.parser.resume_parser import ResumeParser
 from packages.pipeline.vector.embeddings import EmbeddingPipeline
 from packages.pipeline.vector.store import get_vector_store
 
-from apps.api.routers import auth, resume, report, jobs, oauth
+from apps.api.routers import auth, resume, report, jobs
 
 logger = logging.getLogger(__name__)
 
