@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     CHAT_MODEL: str = "gpt-4o-mini"
     EMBEDDING_MODEL: str = "text-embedding-3-small"
     ALLOWED_ORIGINS: Any = None
-    BACKEND_URL = "https://assay-api-90x3.onrender.com/api/v1"
+    BACKEND_URL: str = "https://assay-api-90x3.onrender.com/api/v1"
 
     # ── Vector store ──────────────────────────────────
     # development  → chromadb  (local, no account needed)
