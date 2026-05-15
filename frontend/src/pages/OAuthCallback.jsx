@@ -4,19 +4,26 @@ import { useAuth } from '../context/AuthContext'
 
 export default function OAuthCallback() {
   const [searchParams] = useSearchParams()
-  const { saveToken } = useAuth()
+  const { saveToken, loading } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
     const token = searchParams.get('token')
     const isNew = searchParams.get('new') === 'true'
 
-    if (token) {
-      saveToken(token)
-      navigate(isNew ? '/welcome' : '/analyze', { replace: true })
-    } else {
+    if (!token) {
       navigate('/login?error=oauth_failed', { replace: true })
+      return
     }
+
+    saveToken(token)
+    // Wait for AuthContext to finish loading the user before navigating
+    const destination = isNew ? '/welcome' : '/analyze'
+    const timer = setTimeout(() => {
+      navigate(destination, { replace: true })
+    }, 800)
+
+    return () => clearTimeout(timer)
   }, [])
 
   return (

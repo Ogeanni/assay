@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 export default function ProtectedRoute({ children }) {
   const { token, loading } = useAuth()
 
+  // Wait for AuthContext to finish checking token before deciding
   if (loading) {
     return (
       <div style={{minHeight:'100vh', background:'#160d1e', display:'flex', alignItems:'center', justifyContent:'center'}}>
