@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import AppLayout from '../components/AppLayout'
-import { analyzeResume, searchJobs } from '../api/client'
+import { analyzeResume } from '../api/client'
 
 const STEPS = [
   'Connected. Starting analysis...',
@@ -53,110 +53,10 @@ function parseError(err) {
   return 'Analysis failed. Please try again.'
 }
 
-function JobSearch({ onSelect }) {
-  const [query, setQuery] = useState('')
-  const [jobs, setJobs] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [searched, setSearched] = useState(false)
-  const [expanded, setExpanded] = useState(false)
-
-  const search = async () => {
-    if (!query.trim()) return
-    setLoading(true)
-    try {
-      const res = await searchJobs(query.trim(), undefined, 1)
-      setJobs(res.data.jobs)
-      setSearched(true)
-      setExpanded(true)
-    } catch {}
-    finally { setLoading(false) }
-  }
-
-  const select = (job) => {
-    onSelect(job)
-    setExpanded(false)
-    setQuery(job.title)
-  }
-
-  return (
-    <div>
-      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8}}>
-        <span style={labelStyle}>Browse jobs</span>
-        <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.3)'}}>optional — or paste your own JD below</span>
-      </div>
-
-      <div style={{display:'flex', gap:10, marginBottom: expanded && jobs.length > 0 ? 12 : 0}}>
-        <input
-          type="text"
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && search()}
-          placeholder="Search a role — e.g. Customer Success Manager"
-          style={inputStyle}
-        />
-        <button
-          type="button"
-          onClick={search}
-          disabled={loading || !query.trim()}
-          style={{
-            background: loading || !query.trim() ? 'rgba(124,58,237,0.3)' : '#7c3aed',
-            color:'white', border:'none', borderRadius:10,
-            padding:'12px 20px', fontSize:13, fontWeight:500,
-            cursor: loading || !query.trim() ? 'not-allowed' : 'pointer',
-            flexShrink:0, transition:'all 0.2s',
-            fontFamily:'JetBrains Mono,monospace',
-          }}
-        >
-          {loading ? '...' : 'Search'}
-        </button>
-      </div>
-
-      {expanded && jobs.length > 0 && (
-        <div style={{
-          background:'rgba(0,0,0,0.3)',
-          border:'1px solid rgba(255,255,255,0.08)',
-          borderRadius:12,
-          overflow:'hidden',
-          maxHeight:280,
-          overflowY:'auto',
-        }}>
-          {jobs.map((job, i) => (
-            <div
-              key={job.id}
-              onClick={() => select(job)}
-              style={{
-                padding:'14px 18px',
-                borderBottom: i < jobs.length-1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                cursor:'pointer',
-                transition:'background 0.15s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background='rgba(124,58,237,0.1)'}
-              onMouseLeave={e => e.currentTarget.style.background='transparent'}
-            >
-              <p style={{fontSize:13, fontWeight:600, color:'white', marginBottom:4}}>{job.title}</p>
-              <div style={{display:'flex', gap:12, flexWrap:'wrap'}}>
-                {job.company && <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.45)'}}>{job.company}</span>}
-                {job.location && <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.3)'}}>{job.location}</span>}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {searched && jobs.length === 0 && !loading && (
-        <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.3)', marginTop:8}}>
-          No jobs found. Try a different search or paste a JD below.
-        </p>
-      )}
-    </div>
-  )
-}
-
 export default function Analyze() {
   const [file, setFile] = useState(null)
   const [targetRole, setTargetRole] = useState('')
   const [jobDescription, setJobDescription] = useState('')
-  const [selectedJob, setSelectedJob] = useState(null)
   const [loading, setLoading] = useState(false)
   const [completedSteps, setCompletedSteps] = useState([])
   const [error, setError] = useState(null)
@@ -178,12 +78,6 @@ export default function Analyze() {
     if (selected.type !== 'application/pdf') { setError('Only PDF files are accepted.'); return }
     if (selected.size > 5 * 1024 * 1024) { setError('File too large. Maximum size is 5MB.'); return }
     setFile(selected); setError(null)
-  }
-
-  const handleJobSelect = (job) => {
-    setSelectedJob(job)
-    setTargetRole(job.title)
-    setJobDescription(job.description.slice(0, JD_LIMIT))
   }
 
   const handleSubmit = async (e) => {
@@ -223,7 +117,7 @@ export default function Analyze() {
           Analyze your resume
         </h1>
         <p style={{fontSize:15, color:'rgba(255,255,255,0.55)', lineHeight:1.6}}>
-          Upload your PDF, find a role or paste a JD, and get your depth score.
+          Upload your PDF, add a target role, and get your depth score.
         </p>
       </div>
 
@@ -275,31 +169,6 @@ export default function Analyze() {
           </div>
         </div>
 
-        {/* Job search */}
-        <JobSearch onSelect={handleJobSelect} />
-
-        {/* Selected job indicator */}
-        {selectedJob && (
-          <div style={{
-            background:'rgba(124,58,237,0.1)',
-            border:'1px solid rgba(124,58,237,0.25)',
-            borderRadius:10, padding:'12px 16px',
-            display:'flex', alignItems:'center', justifyContent:'space-between',
-          }}>
-            <div>
-              <p style={{fontSize:13, fontWeight:600, color:'#c4b5fd', marginBottom:2}}>{selectedJob.title}</p>
-              {selectedJob.company && <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(167,139,250,0.6)'}}>{selectedJob.company}</p>}
-            </div>
-            <button
-              type="button"
-              onClick={() => { setSelectedJob(null); setTargetRole(''); setJobDescription('') }}
-              style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(167,139,250,0.5)', background:'none', border:'none', cursor:'pointer'}}
-            >
-              Clear ✕
-            </button>
-          </div>
-        )}
-
         {/* Target role */}
         <div>
           <span style={labelStyle}>Target role</span>
@@ -318,9 +187,17 @@ export default function Analyze() {
         <div>
           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8}}>
             <span style={{...labelStyle, marginBottom:0}}>Job description</span>
-            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color: jdLeft < 500 ? '#f59e0b' : 'rgba(255,255,255,0.3)'}}>
-              {jobDescription.length > 0 ? `${jdLeft} left` : 'optional'}
-            </span>
+            <div style={{display:'flex', alignItems:'center', gap:12}}>
+              <Link
+                to="/jobs"
+                style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', textDecoration:'none'}}
+              >
+                Browse jobs →
+              </Link>
+              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color: jdLeft < 500 ? '#f59e0b' : 'rgba(255,255,255,0.3)'}}>
+                {jobDescription.length > 0 ? `${jdLeft} left` : 'optional'}
+              </span>
+            </div>
           </div>
           <textarea
             value={jobDescription}
