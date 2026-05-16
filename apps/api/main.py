@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from openai import AsyncOpenAI
 
+from starlette.middleware.sessions import SessionMiddleware
+
 from packages.db import create_engine, create_session_factory
 from apps.api.config import settings
 
@@ -49,6 +51,8 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(resume.router, prefix="/api/v1")
