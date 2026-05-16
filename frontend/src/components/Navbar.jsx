@@ -47,6 +47,7 @@ export default function Navbar({ dark = false }) {
               {[
                 { to: '/jobs',      label: 'Jobs' },
                 { to: '/dashboard', label: 'Reports' },
+                { to: '/profile',   label: 'Profile' },
               ].map(({ to, label }) => (
                 <Link key={to} to={to} style={{
                   fontFamily: 'JetBrains Mono, monospace',

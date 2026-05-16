@@ -147,6 +147,7 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
                 email=email,
                 hashed_password=hash_password(secrets.token_hex(16)),
                 onboarding_completed=False,
+                auth_provider="google",
             )
             db.add(user)
             await db.flush()
@@ -217,6 +218,7 @@ async def linkedin_callback(code: str, db: AsyncSession = Depends(get_db)):
                 email=email,
                 hashed_password=hash_password(secrets.token_hex(16)),
                 onboarding_completed=False,
+                auth_provider="linkedin",
             )
             db.add(user)
             await db.flush()
@@ -247,6 +249,7 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
         name=body.name,
         email=body.email,
         hashed_password=hash_password(body.password),
+        auth_provider="email",
     )
     db.add(user)
     await db.flush()
@@ -279,7 +282,60 @@ async def me(current_user: User = Depends(get_current_user)):
         "name": current_user.name,
         "email": current_user.email,
         "onboarding_completed": current_user.onboarding_completed,
+        "auth_provider": current_user.auth_provider,
+        "created_at": current_user.created_at.isoformat(),
     }
+
+
+class UpdateProfileRequest(BaseModel):
+    name: str
+
+
+@router.put("/profile", status_code=status.HTTP_200_OK)
+async def update_profile(
+    body: UpdateProfileRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    await db.execute(
+        update(User).where(User.id == current_user.id).values(name=body.name)
+    )
+    return {"message": "Profile updated."}
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
+@router.put("/change-password", status_code=status.HTTP_200_OK)
+async def change_password(
+    body: ChangePasswordRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if not verify_password(body.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Current password is incorrect.")
+    if len(body.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
+    await db.execute(
+        update(User).where(User.id == current_user.id)
+        .values(hashed_password=hash_password(body.new_password))
+    )
+    return {"message": "Password changed successfully."}
+
+
+@router.delete("/account", status_code=status.HTTP_200_OK)
+async def delete_account(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from datetime import datetime, timezone
+    await db.execute(
+        update(User).where(User.id == current_user.id)
+        .values(deleted_at=datetime.now(timezone.utc), is_active=False)
+    )
+    return {"message": "Account deleted."}
 
 
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)

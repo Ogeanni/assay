@@ -14,6 +14,7 @@ import Report from './pages/Report'
 import Dashboard from './pages/Dashboard'
 import Jobs from './pages/Jobs'
 import Welcome from './pages/Welcome'
+import Profile from './pages/Profile'
 import OAuthCallback from './pages/OAuthCallback'
 
 import './index.css'
@@ -26,11 +27,20 @@ createRoot(document.getElementById('root')).render(
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-           <Route
+          <Route
             path="/welcome"
             element={
               <ProtectedRoute>
                 <Welcome />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/oauth/callback" element={<OAuthCallback />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />
@@ -60,32 +70,9 @@ createRoot(document.getElementById('root')).render(
               </ProtectedRoute>
             }
           />
-
-          <Route
-            path="/jobs"
-            element={
-              <ProtectedRoute>
-                <Jobs />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/oauth/callback" element={<OAuthCallback />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
   </StrictMode>
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
