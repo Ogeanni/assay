@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 
 const MARQUEE_ITEMS = [
-  '47 career types', 'Work experience first', 'JD-specific gaps',
+  'Different career types', 'Work experience first', 'JD-specific gaps',
   'Before & after rewrites', 'Version tracking', 'Real job listings',
   'Seniority-aware', 'Career-agnostic', 'Depth over keywords',
   'Not an ATS', 'Honest scoring', 'Built for humans',
@@ -257,7 +257,7 @@ export default function Landing() {
         <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:2}}>
           {[
             { n:'01', title:'Upload your resume', body:'PDF in. ASSAY reads it across all career types — not just engineering.', icon:'📄' },
-            { n:'02', title:'Score in seconds', body:'Four agents evaluate your work against the rubric. Every career on its own terms.', icon:'⚡' },
+            { n:'02', title:'Score in seconds', body:'The system evaluate your work against the rubric. Every career on its own terms.', icon:'⚡' },
             { n:'03', title:'Get honest positioning', body:'What to lead with, what to fix, and exactly how to rewrite it.', icon:'🎯' },
           ].map((item, i) => (
             <AnimateIn key={item.n} delay={i * 0.1}>
