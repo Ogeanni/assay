@@ -112,6 +112,7 @@ async def google_login():
         "response_type": "code",
         "scope": "openid email profile",
         "access_type": "offline",
+        "prompt": "select_account",  # forces account picker every time
     }
     url = GOOGLE_AUTH_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
     return RedirectResponse(url)
