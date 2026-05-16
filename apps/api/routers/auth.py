@@ -8,10 +8,23 @@ import secrets
 import httpx
 from datetime import datetime, timedelta, timezone
 
+from authlib.integrations.starlette_client import OAuth
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
+
 from apps.api.config import settings
 from apps.api.dependencies import get_current_user, get_db
 from packages.db.models import User
 from apps.api.auth import hash_password, verify_password, create_access_token
+
+oauth = OAuth()
+oauth.register(
+    name='google',
+    client_id=settings.GOOGLE_CLIENT_ID,
+    client_secret=settings.GOOGLE_CLIENT_SECRET,
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'},
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -104,78 +117,135 @@ class ResetPasswordRequest(BaseModel):
 
 # ── Google ────────────────────────────────────────────
  
+# @router.get("/google")
+# async def google_login():
+#     params = {
+#         "client_id": settings.GOOGLE_CLIENT_ID,
+#         "redirect_uri": f"{settings.BACKEND_URL}/auth/google/callback",
+#         "response_type": "code",
+#         "scope": "openid email profile",
+#         "access_type": "offline",
+#         "prompt": "select_account",  # forces account picker every time
+#     }
+#     url = GOOGLE_AUTH_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
+#     return RedirectResponse(url)
+
 @router.get("/google")
-async def google_login():
-    params = {
-        "client_id": settings.GOOGLE_CLIENT_ID,
-        "redirect_uri": f"{settings.BACKEND_URL}/auth/google/callback",
-        "response_type": "code",
-        "scope": "openid email profile",
-        "access_type": "offline",
-        "prompt": "select_account",  # forces account picker every time
-    }
-    url = GOOGLE_AUTH_URL + "?" + "&".join(f"{k}={v}" for k, v in params.items())
-    return RedirectResponse(url)
+async def google_login(request: Request):
+    redirect_uri = f"{settings.BACKEND_URL}/auth/google/callback"
+    return await oauth.google.authorize_redirect(request, redirect_uri)
+
 
 
 
 @router.get("/google/callback")
-async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
+async def google_callback(request: Request, db: AsyncSession = Depends(get_db)):
     try:
-        async with httpx.AsyncClient() as client:
-            # Exchange code for token
-            token_res = await client.post(GOOGLE_TOKEN_URL, data={
-                "code": code,
-                "client_id": settings.GOOGLE_CLIENT_ID,
-                "client_secret": settings.GOOGLE_CLIENT_SECRET,
-                "redirect_uri": f"{settings.BACKEND_URL}/auth/google/callback",
-                "grant_type": "authorization_code",
-            })
-            token_data = token_res.json()
-            access_token = token_data.get("access_token")
- 
-            if not access_token:
-                raise HTTPException(status_code=400, detail="Failed to get access token from Google")
- 
-            # Get user info
-            userinfo_res = await client.get(
-                GOOGLE_USERINFO_URL,
-                headers={"Authorization": f"Bearer {access_token}"}
-            )
-            userinfo = userinfo_res.json()
- 
-        email = userinfo.get("email")
-        name = userinfo.get("name", email.split("@")[0])
- 
+        token = await oauth.google.authorize_access_token(request)
+        userinfo = token.get('userinfo')
+        if not userinfo:
+            raise HTTPException(status_code=400, detail="Could not get user info from Google")
+
+        email = userinfo.get('email')
+        full_name = userinfo.get('name')
+        google_id = userinfo.get('sub')
+
         if not email:
-            raise HTTPException(status_code=400, detail="No email returned from Google")
- 
-        # Find or create user
+            raise HTTPException(status_code=400, detail="Email not provided by Google")
+
+        # Check if user exists
         result = await db.execute(select(User).where(User.email == email))
         user = result.scalar_one_or_none()
- 
+
         if not user:
+            # Create new user
             user = User(
-                name=name,
                 email=email,
-                hashed_password=hash_password(secrets.token_hex(16)),
-                onboarding_completed=False,
+                full_name=full_name,
+                hashed_password=hash_password(secrets.token_hex(32)),
+                google_id=google_id,
+                email_verified=True,
+                is_active=True,
             )
             db.add(user)
-            await db.flush()
-            is_new = True
+            await db.commit()
+            await db.refresh(user)
         else:
-            is_new = False
- 
-        jwt = create_access_token(str(user.id))
-        redirect = f"{settings.FRONTEND_URL}/oauth/callback?token={jwt}&new={str(is_new).lower()}"
-        return RedirectResponse(redirect)
- 
-    except HTTPException:
-        raise
+            if not user.google_id:
+                user.google_id = google_id
+                db.add(user)
+                await db.commit()
+
+        access_token = create_access_token(str(user.id))
+        frontend_url = settings.FRONTEND_URL.rstrip('/')
+        return RedirectResponse(
+            url=f"{frontend_url}/auth/callback?token={access_token}"
+        )
+
     except Exception as e:
-        logger.error(f"Google OAuth error: {e}", exc_info=True)
-        return RedirectResponse(f"{settings.FRONTEND_URL}/login?error=google_failed")
+        frontend_url = settings.FRONTEND_URL.rstrip('/')
+        return RedirectResponse(
+            url=f"{frontend_url}/login?error=google_auth_failed"
+        )
+
+
+# @router.get("/google/callback")
+# async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
+#     try:
+#         async with httpx.AsyncClient() as client:
+#             # Exchange code for token
+#             token_res = await client.post(GOOGLE_TOKEN_URL, data={
+#                 "code": code,
+#                 "client_id": settings.GOOGLE_CLIENT_ID,
+#                 "client_secret": settings.GOOGLE_CLIENT_SECRET,
+#                 "redirect_uri": f"{settings.BACKEND_URL}/auth/google/callback",
+#                 "grant_type": "authorization_code",
+#             })
+#             token_data = token_res.json()
+#             access_token = token_data.get("access_token")
+ 
+#             if not access_token:
+#                 raise HTTPException(status_code=400, detail="Failed to get access token from Google")
+ 
+#             # Get user info
+#             userinfo_res = await client.get(
+#                 GOOGLE_USERINFO_URL,
+#                 headers={"Authorization": f"Bearer {access_token}"}
+#             )
+#             userinfo = userinfo_res.json()
+ 
+#         email = userinfo.get("email")
+#         name = userinfo.get("name", email.split("@")[0])
+ 
+#         if not email:
+#             raise HTTPException(status_code=400, detail="No email returned from Google")
+ 
+#         # Find or create user
+#         result = await db.execute(select(User).where(User.email == email))
+#         user = result.scalar_one_or_none()
+ 
+#         if not user:
+#             user = User(
+#                 name=name,
+#                 email=email,
+#                 hashed_password=hash_password(secrets.token_hex(16)),
+#                 onboarding_completed=False,
+#             )
+#             db.add(user)
+#             await db.flush()
+#             is_new = True
+#         else:
+#             is_new = False
+ 
+#         jwt = create_access_token(str(user.id))
+#         redirect = f"{settings.FRONTEND_URL}/oauth/callback?token={jwt}&new={str(is_new).lower()}"
+#         return RedirectResponse(redirect)
+ 
+#     except HTTPException:
+#         raise
+#     except Exception as e:
+#         logger.error(f"Google OAuth error: {e}", exc_info=True)
+#         return RedirectResponse(f"{settings.FRONTEND_URL}/login?error=google_failed")
  
 
 
