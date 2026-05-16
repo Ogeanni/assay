@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { login } from '../api/client'
 
-const BACKEND_URL = 'https://assay-api-90x3.onrender.com/api/v1'
+const BACKEND_URL = 'https://api.assayai.site/api/v1'
 
 const inputStyle = {
   width: '100%', background: 'rgba(255,255,255,0.06)',
