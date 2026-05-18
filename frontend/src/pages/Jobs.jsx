@@ -21,9 +21,28 @@ function formatSalary(min, max) {
   return `Up to £${f(max)}`
 }
 
+const DATE_FILTERS = [
+  { label: 'Any time', value: null },
+  { label: 'Last 24h', value: '24h' },
+  { label: 'Last 7 days', value: '7d' },
+  { label: 'Last 30 days', value: '30d' },
+  { label: 'Last 2 months', value: '60d' },
+]
+
+const QUICK_LOCATIONS = ['Remote', 'London', 'New York', 'Singapore', 'Berlin', 'Toronto']
+
+const inputStyle = {
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: 10, padding: '12px 16px',
+  fontSize: 14, color: 'white', outline: 'none',
+  fontFamily: 'Inter, sans-serif',
+}
+
 export default function Jobs() {
   const [role, setRole] = useState('')
   const [location, setLocation] = useState('')
+  const [dateFilter, setDateFilter] = useState(null)
   const [jobs, setJobs] = useState([])
   const [total, setTotal] = useState(0)
   const [page, setPage] = useState(1)
@@ -37,20 +56,21 @@ export default function Jobs() {
     if (!role.trim()) return
     setLoading(true); setError(null)
     try {
-      const res = await searchJobs(role.trim(), location.trim() || undefined, p)
+      const res = await searchJobs(role.trim(), location.trim() || undefined, p, dateFilter)
       setJobs(res.data.jobs); setTotal(res.data.total); setPage(p); setSearched(true)
     } catch (err) {
       setError(err.response?.data?.detail || 'Search failed. Try again.')
     } finally { setLoading(false) }
   }
 
-  const inputStyle = {
-    background:'rgba(255,255,255,0.05)',
-    border:'1px solid rgba(255,255,255,0.1)',
-    borderRadius:10, padding:'12px 16px',
-    fontSize:14, color:'white', outline:'none',
-    fontFamily:'Inter,sans-serif',
-  }
+  const chipStyle = (active) => ({
+    fontFamily: 'JetBrains Mono,monospace', fontSize: 11,
+    padding: '5px 12px', borderRadius: 100, cursor: 'pointer',
+    background: active ? 'rgba(124,58,237,0.2)' : 'rgba(255,255,255,0.04)',
+    color: active ? '#c4b5fd' : 'rgba(255,255,255,0.45)',
+    border: `1px solid ${active ? 'rgba(124,58,237,0.35)' : 'rgba(255,255,255,0.08)'}`,
+    transition: 'all 0.15s',
+  })
 
   return (
     <AppLayout>
@@ -60,24 +80,25 @@ export default function Jobs() {
           Find a role. Analyze against it.
         </h1>
         <p style={{fontSize:15, color:'rgba(255,255,255,0.55)', lineHeight:1.6}}>
-          Search real jobs and run your resume against the actual Job Description.
+          Search real jobs and run your resume against the actual job description.
         </p>
       </div>
 
-      <div style={{display:'flex', gap:12, marginBottom:32}}>
+      {/* Search inputs */}
+      <div style={{display:'flex', gap:12, marginBottom:16, flexWrap:'wrap'}}>
         <input
           type="text" value={role}
           onChange={e => setRole(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && search(1)}
           placeholder="Role — e.g. Customer Success Manager"
-          style={{...inputStyle, flex:1}}
+          style={{...inputStyle, flex:1, minWidth:200}}
         />
         <input
           type="text" value={location}
           onChange={e => setLocation(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && search(1)}
-          placeholder="Location — e.g. London"
-          style={{...inputStyle, width:200}}
+          placeholder="Location or Remote"
+          style={{...inputStyle, width:180}}
         />
         <button
           onClick={() => search(1)}
@@ -95,6 +116,26 @@ export default function Jobs() {
         </button>
       </div>
 
+      {/* Quick location chips */}
+      <div style={{display:'flex', gap:8, marginBottom:12, flexWrap:'wrap', alignItems:'center'}}>
+        <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.3)'}}>Location:</span>
+        {QUICK_LOCATIONS.map(loc => (
+          <button key={loc} onClick={() => setLocation(location === loc ? '' : loc)} style={chipStyle(location === loc)}>
+            {loc}
+          </button>
+        ))}
+      </div>
+
+      {/* Date filter chips */}
+      <div style={{display:'flex', gap:8, marginBottom:32, alignItems:'center', flexWrap:'wrap'}}>
+        <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.3)'}}>Posted:</span>
+        {DATE_FILTERS.map(f => (
+          <button key={f.label} onClick={() => setDateFilter(f.value)} style={chipStyle(dateFilter === f.value)}>
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       {error && (
         <div style={{background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10, padding:'12px 16px', marginBottom:24}}>
           <p style={{fontSize:13, color:'#fca5a5'}}>{error}</p>
@@ -104,7 +145,7 @@ export default function Jobs() {
       {loading && (
         <div style={{display:'flex', flexDirection:'column', gap:8}}>
           {[...Array(5)].map((_,i) => (
-            <div key={i} style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:12, padding:20, animation:'pulse 1.5s infinite'}}>
+            <div key={i} style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:12, padding:20}}>
               <div style={{height:14, background:'rgba(255,255,255,0.06)', borderRadius:4, width:'45%', marginBottom:10}} />
               <div style={{height:11, background:'rgba(255,255,255,0.04)', borderRadius:4, width:'30%'}} />
             </div>
@@ -115,6 +156,7 @@ export default function Jobs() {
       {!loading && searched && jobs.length === 0 && (
         <div style={{textAlign:'center', padding:'60px 32px', border:'1px dashed rgba(255,255,255,0.1)', borderRadius:20}}>
           <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.3)'}}>No jobs found for "{role}"</p>
+          <p style={{fontSize:13, color:'rgba(255,255,255,0.25)', marginTop:8}}>Try a different role, location, or widen the date range</p>
         </div>
       )}
 
@@ -122,6 +164,8 @@ export default function Jobs() {
         <>
           <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.35)', marginBottom:16}}>
             {total.toLocaleString()} jobs · page {page}
+            {dateFilter && ` · ${DATE_FILTERS.find(f => f.value === dateFilter)?.label}`}
+            {location && ` · ${location}`}
           </p>
 
           <div style={{display:'flex', flexDirection:'column', gap:8}}>
@@ -142,6 +186,11 @@ export default function Jobs() {
                           {job.company && <span style={{fontSize:13, color:'rgba(255,255,255,0.6)'}}>{job.company}</span>}
                           {job.location && <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.35)'}}>{job.location}</span>}
                           {salary && <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa'}}>{salary}</span>}
+                          {job.contract_type && (
+                            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'2px 8px', borderRadius:100, background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.08)'}}>
+                              {job.contract_type}
+                            </span>
+                          )}
                           {job.created && <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.25)'}}>{timeAgo(job.created)}</span>}
                         </div>
                       </div>

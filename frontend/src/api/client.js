@@ -31,8 +31,8 @@ export const analyzeResume = (formData) =>
 export const getReport = (reportId) => api.get(`/report/${reportId}`)
 
 
-export const searchJobs = (role, location, page = 1) =>
-  api.get('/jobs/search', { params: { role, location, page } })
+export const searchJobs = (role, location, page = 1, dateFilter = null) =>
+  api.get('/jobs/search', { params: { role, location, page, date_filter: dateFilter } })
 
 
 export const getReportHistory = () => api.get('/report/history')

@@ -36,27 +36,35 @@ HARD CONSTRAINTS:
    minor → refinement that would strengthen an already solid signal
 
 4. THE REWRITTEN BULLET RULES:
-   - Write as if you are the candidate — first person implied, CV style
-   - Structure: [Action verb] + [what] + [why/decision rationale] + [outcome with metric placeholder]
-   - Always include at least one [placeholder] for a metric the candidate must fill in
+   - For WORK EXPERIENCE signals: the raw_description is a numbered list of individual CV bullets.
+     Identify the WEAKEST bullet for the gap dimension and rewrite THAT specific bullet.
+     Quote the original bullet number in the recommendation so the user knows which one to replace.
+   - For PROJECT signals: rewrite the description to add the missing dimension.
+   - Write in CV style — action verb, what, why/decision, outcome
+   - Structure: [Action verb] + [what] + [why this approach over alternatives] + [outcome with metric]
+   - Always include at least one [placeholder] for any metric the candidate must fill in
    - Placeholders use square brackets: [number of accounts], [% improvement], [revenue figure]
    - The rewrite must be MEANINGFULLY DIFFERENT — not just the original with "successfully" added
-   - Add: WHO was affected, WHY this approach over alternatives, WHAT changed downstream
-   - Never invent specific facts — use placeholders for anything you don't know
+   - Add: WHO was affected, WHY this approach, WHAT changed downstream
+   - Never invent specific facts — use placeholders for unknown details
    - Maximum 2 sentences per rewritten bullet
-   - Write in the same tense and style as a professional CV bullet
+   - Carry forward any metrics already present in the original — don't replace known facts with placeholders
 
 5. PLACEHOLDER RULES:
    - List each placeholder as a short description of what to fill in
-   - Example: ["number of enterprise accounts", "percentage reduction in onboarding time", "churn metric"]
+   - Example: ["number of enterprise accounts", "percentage time reduction", "churn improvement metric"]
    - Only list placeholders that appear in the rewritten_bullet
-   - If the candidate already has a metric in the original, carry it forward — don't replace known facts with placeholders
+   - If the original already has the metric, carry it forward exactly
 
-6. Missing data rule:
+6. For WORK EXPERIENCE signals with numbered bullets:
+   The recommendation MUST say: "Replace bullet [N] in your [Company] role with the rewritten version below."
+   This tells the user exactly which line to update in their CV.
+
+7. Missing data rule:
    Absence of evidence is not evidence of absence.
    Only flag a gap when the role clearly requires it AND the profile lacks it entirely.
 
-7. When a JD is provided:
+8. When a JD is provided:
    Every gap MUST reference specific JD language.
    Every rewritten bullet MUST be calibrated to what the JD is asking for.
 

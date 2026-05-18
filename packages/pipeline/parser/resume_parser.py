@@ -1,6 +1,7 @@
 import fitz
 import json
 import logging
+import re
 from openai import AsyncOpenAI
 from packages.core.schemas.resume import (
     ResumeProfile,
@@ -57,7 +58,7 @@ A work signal is a DISCRETE unit of work — it had a defined scope and produced
 Key test: "Did this specific thing happen, or is this just describing the job?"
 
 A work signal IS:
-- A named tool, product, or system built (Cusfolio, ARIA, Launchpad)
+- A named tool, product, or system built
 - A discrete initiative with a scope and outcome
 - A specific deal, campaign, or process redesign with measurable result
 
@@ -68,10 +69,9 @@ A work signal is NOT:
 
 NAMING RULES:
 The name field must be:
-1. The EXACT name from the resume if one exists (Cusfolio, ARIA, Launchpad)
+1. The EXACT name from the resume if one exists
 2. For unnamed initiatives from experience bullets:
    "[Company] — [brief descriptor using words from the resume]"
-   e.g. "Qwoted — Onboarding Workflow Improvement"
 NEVER invent a name that does not appear in the resume.
 
 EVIDENCE vs RESPONSIBILITY:
@@ -182,27 +182,17 @@ def extract_text_from_pdf(pdf_bytes: bytes) -> str:
 PORTFOLIO_EXCLUSION_KEYWORDS = [
     'portfolio website', 'portfolio site', 'personal website', 'personal site',
     'portfolio page', 'my website', 'personal portfolio', 'website portfolio',
-    'netlify', 'github.io', 'vercel.app',  # hosting platforms for personal sites
+    'netlify', 'github.io', 'vercel.app',
 ]
 
 def is_portfolio_website(signal: dict) -> bool:
-    """
-    Detect and exclude personal portfolio websites from work signal scoring.
-    A portfolio website is not evidence of professional depth — it is a container
-    for evidence, not evidence itself.
-    """
     name = signal.get("name", "").lower()
     desc = signal.get("raw_description", "").lower()
     combined = name + " " + desc
-
     return any(kw in combined for kw in PORTFOLIO_EXCLUSION_KEYWORDS)
 
 
 def should_prioritise_experience(profile_data: dict) -> bool:
-    """
-    Determine if this profile should be scored primarily on work experience.
-    True for direct/adjacent candidates with 2+ years of experience.
-    """
     profile_type = profile_data.get("profile_type", "no_experience")
     total_months = profile_data.get("total_experience_months") or 0
     return profile_type in ("direct", "adjacent") and total_months >= 24
@@ -211,13 +201,13 @@ def should_prioritise_experience(profile_data: dict) -> bool:
 def experience_to_work_signals(profile_data: dict) -> list:
     """
     Convert work experience entries into scoreable work signals.
-    Used for experienced professionals where job history is the primary evidence.
-    Each role becomes a work signal representing depth of work done there.
+    Preserves individual bullets as a numbered list in raw_description
+    so the gap agent can identify and rewrite each bullet individually.
     """
     signals = []
     work_experience = profile_data.get("work_experience", [])
 
-    for exp in work_experience[:3]:  # top 3 roles only
+    for exp in work_experience[:3]:
         company = exp.get("company", "Unknown")
         role = exp.get("role", "Unknown")
         responsibilities = exp.get("responsibilities", [])
@@ -226,26 +216,29 @@ def experience_to_work_signals(profile_data: dict) -> list:
         if not responsibilities:
             continue
 
-        # Build raw description from responsibilities
-        raw_desc = " ".join(responsibilities)
+        # KEY CHANGE: preserve individual bullets as numbered list
+        # This allows the gap agent to identify and rewrite each bullet separately
+        numbered_bullets = "\n".join([
+            f"{i+1}. {resp.strip()}"
+            for i, resp in enumerate(responsibilities)
+            if resp.strip()
+        ])
 
-        # Extract business metrics from responsibilities
+        # Extract business metrics
         business_metrics = []
         for resp in responsibilities:
-            import re
             metrics = re.findall(
                 r'\d+[%$][\w\s]*|[$]\d+[\w\s]*|\d+\s*(?:percent|accounts|clients|teams?|points?)',
                 resp, re.IGNORECASE
             )
             business_metrics.extend(metrics)
 
-        # Only include roles with real content
         if len(responsibilities) < 2 and not business_metrics:
             continue
 
         signal = {
             "name": f"{company} — {role}",
-            "raw_description": raw_desc,
+            "raw_description": numbered_bullets,  # numbered list, not blob
             "signal_type": "process",
             "problem_stated": None,
             "problem_owner": None,
@@ -278,7 +271,6 @@ class ResumeParser:
 
         profile_data = await self._extract_structure(raw_text, target_role)
 
-        # Derive evidence_pattern from career_type
         career_type_str = profile_data.get("career_type", "unknown")
         try:
             career_type = CareerType(career_type_str)
@@ -288,12 +280,10 @@ class ResumeParser:
         derived_pattern = get_evidence_pattern(career_type)
         profile_data["evidence_pattern"] = derived_pattern.value
 
-        # Set seniority_level from seniority_signals inferred_level
         seniority_signals = profile_data.get("seniority_signals")
         if seniority_signals and seniority_signals.get("inferred_level"):
             profile_data["seniority_level"] = seniority_signals["inferred_level"]
 
-        # Remove portfolio websites — they are containers for evidence, not evidence
         all_signals = profile_data.get("work_signals", [])
         filtered_signals = [s for s in all_signals if not is_portfolio_website(s)]
         if len(filtered_signals) < len(all_signals):
@@ -301,19 +291,15 @@ class ResumeParser:
             logger.info(f"Excluded portfolio websites from scoring: {removed}")
         profile_data["work_signals"] = filtered_signals
 
-        # For experienced direct/adjacent candidates, prioritise work experience
         if should_prioritise_experience(profile_data):
             experience_signals = experience_to_work_signals(profile_data)
             existing_signals = profile_data.get("work_signals", [])
-
-            # Put experience signals first, keep project signals as supplementary
             profile_data["work_signals"] = experience_signals + existing_signals
             logger.info(
                 f"Experience-first mode: {len(experience_signals)} experience signals, "
                 f"{len(existing_signals)} project signals"
             )
 
-        # Validate we extracted enough signal to score
         if len(raw_text.strip()) < 100:
             raise ValueError(
                 "PDF appears to be empty or scanned without text. "
