@@ -14,7 +14,7 @@ from packages.core.schemas.report import ReportResponse, GapItem, PositioningBri
 logger = logging.getLogger(__name__)
 
 # Bump this when prompts change to invalidate cached reports
-MODEL_VERSION = "v1.0"
+MODEL_VERSION = "v1.1"
 
 router = APIRouter(prefix="/resume", tags=["resume"])
 

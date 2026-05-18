@@ -28,41 +28,47 @@ HARD CONSTRAINTS:
    Do not promote responsibilities into positioning anchors.
    Do not invent initiatives, projects, or achievements not in the profile.
    lead_with should prioritise work signals that demonstrate IMPACT and OUTCOMES.
-   For non-builder careers (operator, seller, strategist, communicator):
-   - Work experience signals (format: "Company — Role") should lead over project names
-   - "Qwoted — Content Operations Manager" is stronger than "Cusfolio" for a CSM role
-   - Choose signals that answer "what did you achieve in your career"
-   - Project/tool names go in lead_with only if they directly demonstrate the target role skills
-   For builder careers: project signals can lead.
 
-3. ALL positioning claims must be traceable to explicit resume evidence.
+3. CRITICAL — DISTINGUISH PROJECTS FROM WORK EXPERIENCE:
+   Every signal in the SIGNAL TYPE REFERENCE below is explicitly tagged as either
+   WORK EXPERIENCE or INDEPENDENT PROJECT. Use that tag — never guess from the name.
+
+   WORK EXPERIENCE signals (tagged as such):
+   - The person was employed there. Reference as "at [Company]" or "in the [Role] role".
+   - Never say "the [signal name] build" or "the [signal name] system".
+
+   INDEPENDENT PROJECT signals (tagged as such):
+   - The person built this. It is NOT an employer. It is NOT a place of work.
+   - Reference as "the [name] build", "the [name] system", or "[name], an independent project".
+   - NEVER say "experience at [name]", "work at [name]", or imply employment at a project name.
+   - This rule applies regardless of how the project name sounds — even if it resembles a company name.
+
+   When in doubt: check the SIGNAL TYPE REFERENCE. It is the ground truth.
+
+4. ALL positioning claims must be traceable to explicit resume evidence.
    Do not infer seniority, ownership, scale, or technical depth beyond demonstrated signals.
 
-4. Career-specific framing:
-   A customer success manager is not evaluated like an engineer.
-   An operator is positioned on process depth and operational impact.
-   A seller is positioned on revenue outcomes and relationship depth.
-   A strategist is positioned on decisions made and org outcomes.
-   A communicator is positioned on audience reached and message impact.
+5. Career-specific framing:
+   builder → positioned on systems built, decisions made, outcomes enabled
+   operator → positioned on process depth and operational impact
+   seller → positioned on revenue outcomes and relationship depth
+   strategist → positioned on decisions made and org outcomes
+   communicator → positioned on audience reached and message impact
 
-5. Seniority-appropriate framing:
+6. Seniority-appropriate framing:
    junior → position on learning velocity and execution quality
    mid → position on ownership and measurable impact
    senior → position on strategic influence and org outcomes
    unknown → position conservatively on demonstrated evidence only
 
-6. Narrative structure — three paragraphs:
-   Para 1: what this profile signals to a recruiter in this specific field.
-             Ground every claim in a specific work signal.
+7. Narrative structure — three paragraphs:
+   Para 1: what this profile signals to a recruiter. Ground every claim in a specific signal.
+             If referencing a project, say "the [name] build/system" not "experience at [name]".
    Para 2: what to lead with and exactly why — tied to the target role requirements.
-   Para 3: the ONE most important thing to work on next.
-             Must be specific to their career type and reference an existing signal.
+   Para 3: the ONE most important thing to work on next, specific to their career type.
 
-7. Never use: "passionate about", "leveraging", "synergistic", "dynamic",
+8. Never use: "passionate about", "leveraging", "synergistic", "dynamic",
    "results-driven", "thought leader", or any filler phrase.
-
-8. If the profile is strong, say so directly and explain why with evidence.
-   If it needs work, say so directly and explain exactly what is missing.
 
 Return valid JSON only. No markdown. No explanation outside the JSON.
 """
@@ -78,6 +84,9 @@ Evidence pattern: {evidence_pattern}
 Profile type: {profile_type}
 Depth score: {depth_score} ({label})
 Strongest work signal: {strongest_project}
+
+SIGNAL TYPE REFERENCE — critical context to avoid misidentifying projects as employers:
+{signal_type_reference}
 
 Gaps identified:
 {gaps_summary}
@@ -109,6 +118,27 @@ class NarrativeAgent:
         self.model = model
         self.client = client
 
+    def _build_signal_type_reference(self, profile) -> str:
+        """
+        Explicit map of signal names to their type.
+        Prevents the LLM from calling projects 'experience at X'.
+        """
+        lines = []
+        for signal in profile.work_signals:
+            if " — " in signal.name and signal.signal_type.value == "process":
+                parts = signal.name.split(" — ", 1)
+                lines.append(
+                    f"- '{signal.name}' → WORK EXPERIENCE at {parts[0]} "
+                    f"(correct: 'at {parts[0]}' or 'in the {parts[1]} role')"
+                )
+            else:
+                lines.append(
+                    f"- '{signal.name}' → INDEPENDENT PROJECT "
+                    f"(correct: 'the {signal.name} build/system/project', "
+                    f"NEVER 'experience at {signal.name}' or 'work at {signal.name}')"
+                )
+        return "\n".join(lines) if lines else "No signals available"
+
     async def run(self, state: AssayState) -> dict:
         if state.get("error"):
             return {}
@@ -136,7 +166,8 @@ class NarrativeAgent:
             for ts in profile.transferable_skills
         ]) or "No transferable skills identified"
 
-        # Job description context
+        signal_type_reference = self._build_signal_type_reference(profile)
+
         job_description = state.get("job_description")
         if job_description:
             jd_context = f"""
@@ -154,7 +185,6 @@ MANDATORY INSTRUCTIONS when JD is provided:
         else:
             jd_context = "No job description provided. Position for the target role generally."
 
-        # Build seniority context
         ss = profile.seniority_signals
         if ss:
             seniority_context = (
@@ -182,6 +212,7 @@ MANDATORY INSTRUCTIONS when JD is provided:
                             depth_score=depth_score.depth_score,
                             label=depth_score.label.value,
                             strongest_project=depth_score.strongest_project or "N/A",
+                            signal_type_reference=signal_type_reference,
                             gaps_summary=gaps_summary,
                             projects_summary=projects_summary,
                             transferable_skills=transferable_skills,
