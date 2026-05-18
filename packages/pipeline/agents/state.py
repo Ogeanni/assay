@@ -22,6 +22,8 @@ class AssayState(MessagesState):
     depth_score: Optional[DepthScore] = None
     gaps: Optional[list[GapItem]] = None
     rewrites: Optional[list[dict]] = None   # rewriter agent output
+    summary_rewrite: Optional[str] = None
+    summary_placeholders: Optional[list[str]] = None
     positioning: Optional[PositioningBrief] = None
     report: Optional[AssayReport] = None
 

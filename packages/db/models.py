@@ -123,7 +123,11 @@ class AssayReport(Base):
     depth_score_detail: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     gaps: Mapped[list | None] = mapped_column(JSONB, nullable=True)
     positioning: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
- 
+
+    # Rewriter agent output
+    rewrites: Mapped[list | None] = mapped_column(JSONB, nullable=True)
+    summary_rewrite: Mapped[str | None] = mapped_column(Text, nullable=True)
+    
     # Signal completeness — shown to user
     signal_note: Mapped[str | None] = mapped_column(Text, nullable=True)
  

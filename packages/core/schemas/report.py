@@ -39,7 +39,9 @@ class AssayReport(BaseModel):
     profile: "ResumeProfile"
     depth_score: DepthScore
     gaps: list[GapItem] = Field(default_factory=list)
-    rewrites: list[dict] = Field(default_factory=list)  # rewriter agent output
+    rewrites: list[dict] = Field(default_factory=list)
+    summary_rewrite: Optional[str] = None
+    summary_placeholders: list[str] = Field(default_factory=list)
     positioning: PositioningBrief
 
     model_version: str = "gpt-4o-mini"
@@ -53,6 +55,8 @@ class ReportResponse(BaseModel):
     depth_score: DepthScore
     gaps: list[GapItem]
     rewrites: list[dict] = Field(default_factory=list)
+    summary_rewrite: Optional[str] = None
+    summary_placeholders: list[str] = Field(default_factory=list)
     positioning: PositioningBrief
     signal_note: Optional[str] = None
 

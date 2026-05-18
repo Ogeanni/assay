@@ -181,6 +181,8 @@ async def stream_report(
                 "gaps": [g.model_dump() for g in report.gaps],
                 "rewrites": report.rewrites or [],
                 "positioning": report.positioning.model_dump(),
+                "summary_rewrite": report.summary_rewrite,
+                "summary_placeholders": report.summary_placeholders or [],
                 "signal_note": report.signal_note,
             })
         else:

@@ -130,6 +130,18 @@ export default function Report() {
           </span>
         </div>
 
+        {/* Download CV */}
+        <a href={`https://api.assayai.site/api/v1/cv/download/${report.report_id}`}
+          style={{
+            display:'inline-flex', alignItems:'center', gap:8,
+            background:'#7c3aed', color:'white', borderRadius:10,
+            padding:'10px 20px', fontSize:13, fontWeight:500,
+            textDecoration:'none', boxShadow:'0 0 20px rgba(124,58,237,0.3)',
+          }}
+        >
+          ⬇ Download rewritten CV
+        </a>
+
         {/* Score card */}
         <div style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:20, overflow:'hidden', boxShadow:'0 0 0 1px rgba(124,58,237,0.1)'}}>
           <div style={{padding:'32px 36px 24px', background:'linear-gradient(135deg,rgba(124,58,237,0.1) 0%,transparent 60%)', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>

@@ -203,6 +203,10 @@ class ReportRepository:
             gaps=[gap.model_dump() for gap in report.gaps],
             positioning=report.positioning.model_dump(),
 
+            # Rewriter output
+            rewrites=report.rewrites or [],
+            summary_rewrite=report.summary_rewrite,
+
             signal_note=report.signal_note,
             model_version=report.model_version,
         )
