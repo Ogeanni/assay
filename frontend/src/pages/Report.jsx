@@ -206,7 +206,28 @@ export default function Report() {
                       <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.4)', textTransform:'capitalize'}}>{gap.dimension.replace(/_/g,' ')}</span>
                     </div>
                     <p style={{fontSize:13, color:'rgba(255,255,255,0.7)', lineHeight:1.7, marginBottom:12}}>{gap.description}</p>
-                    <RationaleText text={gap.recommendation} />
+                    
+                    <p style={{fontSize:13, color:'rgba(255,255,255,0.65)', lineHeight:1.7, marginBottom: gap.rewritten_bullet ? 16 : 0}}>{gap.recommendation}</p>
+
+                      {gap.rewritten_bullet && (
+                        <div style={{marginTop:4}}>
+                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', marginBottom:10}}>REWRITTEN BULLET — PASTE INTO YOUR CV</p>
+                          <div style={{background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.25)', borderRadius:10, padding:'14px 16px', marginBottom: gap.placeholders?.length > 0 ? 10 : 0}}>
+                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.7}}>{gap.rewritten_bullet}</p>
+                          </div>
+                          {gap.placeholders?.length > 0 && (
+                            <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
+                              {gap.placeholders.map((p, i) => (
+                                <span key={i} style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'3px 10px', borderRadius:100, background:'rgba(245,158,11,0.1)', color:'#fcd34d', border:'1px solid rgba(245,158,11,0.2)'}}>
+                                  Fill in: {p}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+
                   </div>
                 )
               })}

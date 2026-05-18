@@ -15,17 +15,20 @@ class GapSeverity(str, Enum):
 
 
 class GapItem(BaseModel):
-    dimension: str          # which rubric dimension this gap is in
-    description: str        # what specifically is missing
+    dimension: str
+    description: str
     severity: GapSeverity
-    recommendation: str     # concrete action — not generic advice
+    recommendation: str
+    # Rewriter fields — always populated
+    rewritten_bullet: Optional[str] = None   # ready-to-paste improved bullet
+    placeholders: list[str] = Field(default_factory=list)  # blanks user fills in
 
 
 class PositioningBrief(BaseModel):
-    headline: str                                        # one sentence: strongest honest positioning
-    lead_with: list[str] = Field(default_factory=list)  # projects or skills to front-load
-    de_emphasize: list[str] = Field(default_factory=list) # items that add noise, not signal
-    narrative: str                                       # 2-3 paragraph positioning strategy
+    headline: str
+    lead_with: list[str] = Field(default_factory=list)
+    de_emphasize: list[str] = Field(default_factory=list)
+    narrative: str
 
 
 class AssayReport(BaseModel):
@@ -33,16 +36,12 @@ class AssayReport(BaseModel):
     target_role: str
     created_at: datetime
 
-    # Core intelligence outputs
     profile: "ResumeProfile"
     depth_score: DepthScore
     gaps: list[GapItem] = Field(default_factory=list)
     positioning: PositioningBrief
 
-    # Metadata
     model_version: str = "gpt-4o-mini"
-
-    # Shown to user when score is based on limited signal
     signal_note: Optional[str] = None
 
 
@@ -56,6 +55,5 @@ class ReportResponse(BaseModel):
     signal_note: Optional[str] = None
 
 
-# Resolve forward references
 from packages.core.schemas.resume import ResumeProfile
 AssayReport.model_rebuild()
