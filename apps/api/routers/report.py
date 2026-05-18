@@ -20,17 +20,11 @@ def format_event(event_type: str, data: dict) -> str:
     return f"data: {json.dumps({'type': event_type, **data})}\n\n"
 
 
-
 @router.get("/history", response_model=None)
 async def report_history(session: AsyncSession = Depends(get_db), current_user: User = Depends(get_current_user)):
-    """
-    Returns reports grouped by target role with score progression.
-    Used for resume version tracking on the dashboard.
-    """
     repo = ReportRepository(session)
     reports = await repo.list_by_user(current_user.id, limit=100)
 
-    # Group by target role
     groups = {}
     for r in reports:
         role = r.target_role
@@ -43,7 +37,6 @@ async def report_history(session: AsyncSession = Depends(get_db), current_user: 
             "created_at": r.created_at.isoformat(),
         })
 
-    # Sort each group by date ascending (oldest first = version 1, 2, 3...)
     result = []
     for role, version in groups.items():
         versions_sorted = sorted(version, key=lambda v: v["created_at"])
@@ -64,12 +57,11 @@ async def report_history(session: AsyncSession = Depends(get_db), current_user: 
             "improvement": improvement,
         })
 
-    # Sort groups by latest activity
     result.sort(key=lambda g: g["latest_created_at"], reverse=True)
     return result
 
 
-@router.get("/list")
+@router.get("/list", response_model=None)
 async def list_reports(
     request: Request,
     session: AsyncSession = Depends(get_db),
@@ -89,7 +81,7 @@ async def list_reports(
     ]
 
 
-@router.get("/{report_id}")
+@router.get("/{report_id}", response_model=None)
 async def get_report(
     report_id: str,
     session: AsyncSession = Depends(get_db),
@@ -109,7 +101,6 @@ async def get_report(
     if not report:
         raise HTTPException(status_code=404, detail="Report not found.")
 
-    # Security — users can only access their own reports
     if str(report.user_id) != str(current_user.id):
         raise HTTPException(status_code=403, detail="Access denied.")
 
@@ -119,15 +110,15 @@ async def get_report(
         created_at=report.created_at,
         depth_score=DepthScore(**report.depth_score_detail),
         gaps=[GapItem(**g) for g in report.gaps],
-        positioning=PositioningBrief(**report.positioning),
         rewrites=report.rewrites or [],
+        summary_rewrite=report.summary_rewrite,
+        summary_placeholders=getattr(report, 'summary_placeholders', None) or [],
+        positioning=PositioningBrief(**report.positioning),
         signal_note=report.signal_note,
     )
 
 
-
-
-@router.get("/stream")
+@router.get("/stream", response_model=None)
 async def stream_report(
     request: Request,
     resume_id: str,
@@ -159,12 +150,11 @@ async def stream_report(
             if "depth_agent" in chunk:
                 yield format_event("progress", {"message": "Depth scoring complete. Analyzing gaps..."})
             elif "gap_agent" in chunk:
-                yield format_event("progress", {"message": "Gap analysis complete. Generating positioning..."})
+                yield format_event("progress", {"message": "Gap analysis complete. Rewriting bullets..."})
             elif "rewriter_agent" in chunk:
-                yield format_event("progress", {"message": "Rewriting CV bullets..."})
+                yield format_event("progress", {"message": "Bullets rewritten. Generating positioning..."})
             elif "narrative_agent" in chunk:
                 yield format_event("progress", {"message": "Positioning complete. Assembling report..."})
-
                 narrative_output = chunk["narrative_agent"]
                 if narrative_output.get("report"):
                     report = narrative_output["report"]
@@ -180,9 +170,9 @@ async def stream_report(
                 "depth_score": report.depth_score.model_dump(),
                 "gaps": [g.model_dump() for g in report.gaps],
                 "rewrites": report.rewrites or [],
-                "positioning": report.positioning.model_dump(),
                 "summary_rewrite": report.summary_rewrite,
                 "summary_placeholders": report.summary_placeholders or [],
+                "positioning": report.positioning.model_dump(),
                 "signal_note": report.signal_note,
             })
         else:
@@ -194,8 +184,5 @@ async def stream_report(
     return StreamingResponse(
         generate(),
         media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",
-        },
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )

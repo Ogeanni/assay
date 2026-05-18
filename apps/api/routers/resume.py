@@ -14,7 +14,7 @@ from packages.core.schemas.report import ReportResponse, GapItem, PositioningBri
 logger = logging.getLogger(__name__)
 
 # Bump this when prompts change to invalidate cached reports
-MODEL_VERSION = "v1.1"
+MODEL_VERSION = "v1.2"
 
 router = APIRouter(prefix="/resume", tags=["resume"])
 
@@ -74,6 +74,9 @@ async def analyze_resume(
             created_at=existing_report.created_at,
             depth_score=DepthScore(**existing_report.depth_score_detail),
             gaps=[GapItem(**g) for g in existing_report.gaps],
+            rewrites=existing_report.rewrites or [],
+            summary_rewrite=existing_report.summary_rewrite,
+            summary_placeholders=getattr(existing_report, 'summary_placeholders', None) or [],
             positioning=PositioningBrief(**existing_report.positioning),
             signal_note=existing_report.signal_note,
         )
@@ -119,6 +122,9 @@ async def analyze_resume(
         created_at=report.created_at,
         depth_score=report.depth_score,
         gaps=report.gaps,
+        rewrites=report.rewrites or [],
+        summary_rewrite=report.summary_rewrite,
+        summary_placeholders=report.summary_placeholders or [],
         positioning=report.positioning,
         signal_note=report.signal_note,
     )
