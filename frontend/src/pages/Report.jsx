@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import AppLayout from '../components/AppLayout'
 import { getReport } from '../api/client'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+
 const LABEL = {
   Expert:     { bg:'rgba(124,58,237,0.3)',  text:'#c4b5fd', border:'rgba(124,58,237,0.4)' },
   Proficient: { bg:'rgba(124,58,237,0.2)',  text:'#a78bfa', border:'rgba(124,58,237,0.3)' },
@@ -85,6 +87,7 @@ export default function Report() {
   const [report, setReport] = useState(state?.report || null)
   const [fetching, setFetching] = useState(false)
   const [fetchError, setFetchError] = useState(false)
+  const [downloading, setDownloading] = useState(false)
 
   useEffect(() => {
     if (!report && id) {
@@ -92,6 +95,29 @@ export default function Report() {
       getReport(id).then(r => setReport(r.data)).catch(() => setFetchError(true)).finally(() => setFetching(false))
     }
   }, [id])
+
+  const handleDownloadCV = async () => {
+    setDownloading(true)
+    try {
+      const token = localStorage.getItem('token')
+      const res = await fetch(
+        `${API_URL}/cv/download/${report.report_id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      if (!res.ok) throw new Error('Download failed')
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `CV_${report.target_role.replace(/ /g, '_')}.docx`
+      a.click()
+      URL.revokeObjectURL(url)
+    } catch (err) {
+      console.error('CV download failed:', err)
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   if (fetching) return (
     <AppLayout>
@@ -130,17 +156,34 @@ export default function Report() {
           </span>
         </div>
 
-        {/* Download CV */}
-        <a href={`https://api.assayai.site/api/v1/cv/download/${report.report_id}`}
-          style={{
-            display:'inline-flex', alignItems:'center', gap:8,
-            background:'#7c3aed', color:'white', borderRadius:10,
-            padding:'10px 20px', fontSize:13, fontWeight:500,
-            textDecoration:'none', boxShadow:'0 0 20px rgba(124,58,237,0.3)',
-          }}
-        >
-          ⬇ Download rewritten CV
-        </a>
+        {/* Download CV button */}
+        <div>
+          <button
+            onClick={handleDownloadCV}
+            disabled={downloading}
+            style={{
+              display:'inline-flex', alignItems:'center', gap:8,
+              background: downloading ? 'rgba(124,58,237,0.4)' : '#7c3aed',
+              color:'white', border:'none', borderRadius:10,
+              padding:'10px 20px', fontSize:13, fontWeight:500,
+              cursor: downloading ? 'not-allowed' : 'pointer',
+              boxShadow: downloading ? 'none' : '0 0 20px rgba(124,58,237,0.3)',
+              transition:'all 0.2s',
+            }}
+          >
+            {downloading ? (
+              <>
+                <div style={{width:14, height:14, borderRadius:'50%', border:'2px solid rgba(255,255,255,0.3)', borderTopColor:'white', animation:'spin 0.8s linear infinite'}} />
+                Generating CV...
+              </>
+            ) : (
+              <>⬇ Download rewritten CV</>
+            )}
+          </button>
+          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.3)', marginTop:8}}>
+            DOCX · Fill in the amber [e.g. X] placeholders with your actual figures
+          </p>
+        </div>
 
         {/* Score card */}
         <div style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:20, overflow:'hidden', boxShadow:'0 0 0 1px rgba(124,58,237,0.1)'}}>
@@ -218,28 +261,24 @@ export default function Report() {
                       <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.4)', textTransform:'capitalize'}}>{gap.dimension.replace(/_/g,' ')}</span>
                     </div>
                     <p style={{fontSize:13, color:'rgba(255,255,255,0.7)', lineHeight:1.7, marginBottom:12}}>{gap.description}</p>
-                    
                     <p style={{fontSize:13, color:'rgba(255,255,255,0.65)', lineHeight:1.7, marginBottom: gap.rewritten_bullet ? 16 : 0}}>{gap.recommendation}</p>
-
-                      {gap.rewritten_bullet && (
-                        <div style={{marginTop:4}}>
-                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', marginBottom:10}}>REWRITTEN BULLET — PASTE INTO YOUR CV</p>
-                          <div style={{background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.25)', borderRadius:10, padding:'14px 16px', marginBottom: gap.placeholders?.length > 0 ? 10 : 0}}>
-                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.7}}>{gap.rewritten_bullet}</p>
-                          </div>
-                          {gap.placeholders?.length > 0 && (
-                            <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
-                              {gap.placeholders.map((p, i) => (
-                                <span key={i} style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'3px 10px', borderRadius:100, background:'rgba(245,158,11,0.1)', color:'#fcd34d', border:'1px solid rgba(245,158,11,0.2)'}}>
-                                  Fill in: {p}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                    {gap.rewritten_bullet && (
+                      <div style={{marginTop:4}}>
+                        <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', marginBottom:10}}>REWRITTEN BULLET — PASTE INTO YOUR CV</p>
+                        <div style={{background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.25)', borderRadius:10, padding:'14px 16px', marginBottom: gap.placeholders?.length > 0 ? 10 : 0}}>
+                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.7}}>{gap.rewritten_bullet}</p>
                         </div>
-                      )}
-
-
+                        {gap.placeholders?.length > 0 && (
+                          <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
+                            {gap.placeholders.map((p, i) => (
+                              <span key={i} style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'3px 10px', borderRadius:100, background:'rgba(245,158,11,0.1)', color:'#fcd34d', border:'1px solid rgba(245,158,11,0.2)'}}>
+                                Fill in: {p}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )
               })}
@@ -247,60 +286,85 @@ export default function Report() {
           </div>
         )}
 
-
         {/* CV Rewrites */}
-          {report.rewrites?.length > 0 && (
-            <div>
-              <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em', marginBottom:14}}>YOUR REWRITTEN CV BULLETS</p>
-              {report.rewrites.map((rewrite, ri) => (
-                <div key={ri} style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:16, overflow:'hidden', marginBottom:12}}>
-                  <div style={{padding:'16px 24px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'linear-gradient(135deg,rgba(124,58,237,0.08) 0%,transparent 60%)'}}>
-                    <p style={{fontSize:14, fontWeight:600, color:'white', marginBottom:2}}>{rewrite.company}</p>
-                    <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.4)'}}>{rewrite.role}</p>
-                  </div>
-                  <div style={{padding:'16px 24px', display:'flex', flexDirection:'column', gap:12}}>
-                    {rewrite.bullets?.map((bullet, bi) => (
-                      <div key={bi} style={{
-                        borderLeft: `3px solid ${bullet.status === 'rewritten' ? '#7c3aed' : 'rgba(255,255,255,0.1)'}`,
-                        paddingLeft:16,
-                      }}>
-                        {bullet.status === 'rewritten' ? (
-                          <div>
-                            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:6}}>
-                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(239,68,68,0.7)'}}>✗ original</span>
-                            </div>
-                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.3)', lineHeight:1.6, marginBottom:10, textDecoration:'line-through'}}>{bullet.original}</p>
-                            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:6}}>
-                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa'}}>✓ rewritten</span>
-                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.25)'}}>{bullet.reason}</span>
-                            </div>
-                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.6, marginBottom: bullet.placeholders?.length > 0 ? 8 : 0}}>{bullet.rewritten}</p>
-                            {bullet.placeholders?.length > 0 && (
-                              <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
-                                {bullet.placeholders.map((p, pi) => (
-                                  <span key={pi} style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'3px 10px', borderRadius:100, background:'rgba(245,158,11,0.1)', color:'#fcd34d', border:'1px solid rgba(245,158,11,0.2)'}}>
-                                    Fill in: {p}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div>
-                            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:4}}>
-                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#4ade80'}}>✓ strong — keep</span>
-                            </div>
-                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.55)', lineHeight:1.6}}>{bullet.original}</p>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+        {report.rewrites?.length > 0 && (
+          <div>
+            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em', marginBottom:14}}>YOUR REWRITTEN CV BULLETS</p>
+            {report.rewrites.map((rewrite, ri) => (
+              <div key={ri} style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:16, overflow:'hidden', marginBottom:12}}>
+                <div style={{padding:'16px 24px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'linear-gradient(135deg,rgba(124,58,237,0.08) 0%,transparent 60%)'}}>
+                  <p style={{fontSize:14, fontWeight:600, color:'white', marginBottom:2}}>{rewrite.company}</p>
+                  <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.4)'}}>{rewrite.role}</p>
                 </div>
-              ))}
-            </div>
-          )}
+                <div style={{padding:'16px 24px', display:'flex', flexDirection:'column', gap:12}}>
+                  {rewrite.bullets?.map((bullet, bi) => (
+                    <div key={bi} style={{
+                      borderLeft: `3px solid ${bullet.status === 'rewritten' ? '#7c3aed' : bullet.status === 'needs_detail' ? '#f59e0b' : 'rgba(255,255,255,0.1)'}`,
+                      paddingLeft:16,
+                    }}>
+                      {bullet.status === 'rewritten' ? (
+                        <div>
+                          <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:6}}>
+                            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(239,68,68,0.7)'}}>✗ original</span>
+                          </div>
+                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.3)', lineHeight:1.6, marginBottom:10, textDecoration:'line-through'}}>{bullet.original}</p>
+                          <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:6}}>
+                            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa'}}>✓ rewritten</span>
+                            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.25)'}}>{bullet.reason}</span>
+                          </div>
+                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.6, marginBottom: bullet.placeholders?.length > 0 ? 8 : 0}}>{bullet.rewritten}</p>
+                          {bullet.placeholders?.length > 0 && (
+                            <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
+                              {bullet.placeholders.map((p, pi) => (
+                                <span key={pi} style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'3px 10px', borderRadius:100, background:'rgba(245,158,11,0.1)', color:'#fcd34d', border:'1px solid rgba(245,158,11,0.2)'}}>
+                                  Fill in: {p}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ) : bullet.status === 'needs_detail' ? (
+                        <div>
+                          <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:6}}>
+                            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#f59e0b'}}>⚠ needs detail</span>
+                          </div>
+                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.4)', lineHeight:1.6, marginBottom:6}}>{bullet.original}</p>
+                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#fcd34d'}}>{bullet.reason}</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:4}}>
+                            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#4ade80'}}>✓ strong — keep</span>
+                          </div>
+                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.55)', lineHeight:1.6}}>{bullet.original}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
+        {/* Profile Summary Rewrite */}
+        {report.summary_rewrite && (
+          <div>
+            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em', marginBottom:14}}>REWRITTEN PROFILE SUMMARY</p>
+            <div style={{background:'rgba(124,58,237,0.06)', border:'1px solid rgba(124,58,237,0.2)', borderRadius:14, padding:'20px 24px'}}>
+              <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.8}}>{report.summary_rewrite}</p>
+              {report.summary_placeholders?.length > 0 && (
+                <div style={{display:'flex', flexWrap:'wrap', gap:6, marginTop:12}}>
+                  {report.summary_placeholders.map((p, i) => (
+                    <span key={i} style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'3px 10px', borderRadius:100, background:'rgba(245,158,11,0.1)', color:'#fcd34d', border:'1px solid rgba(245,158,11,0.2)'}}>
+                      Fill in: {p}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Positioning */}
         <div>
