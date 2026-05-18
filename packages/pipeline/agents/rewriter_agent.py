@@ -87,6 +87,9 @@ Job description context:
 Work experience signals to rewrite:
 {signals}
 
+IMPORTANT: bullets array length must equal the BULLET COUNT for each signal.
+If a signal has 4 bullets, return exactly 4 bullet objects. No more, no less.
+
 Return this exact JSON structure:
 {{
   "summary_rewrite": "rewritten profile summary (null if no original summary exists)",
@@ -96,14 +99,15 @@ Return this exact JSON structure:
       "signal_name": "exact signal name",
       "company": "company name",
       "role": "role title",
+      "bullet_count": 0,
       "bullets": [
         {{
           "index": 1,
-          "original": "original bullet text verbatim",
+          "original": "original bullet text verbatim — copy exactly from input",
           "status": "rewritten | kept | needs_detail",
-          "rewritten": "ready-to-paste CV bullet with [e.g. metric] placeholders",
+          "rewritten": "this bullet rewritten — one bullet in, one bullet out",
           "placeholders": ["description of each [e.g.] placeholder in order"],
-          "reason": "one phrase: what dimension was added or why it was kept"
+          "reason": "one phrase: what was added or why it was kept"
         }}
       ]
     }}
@@ -198,10 +202,10 @@ class RewriterAgent:
             lines.append(f"Signal: {signal.name}")
             if score_summary:
                 lines.append(score_summary)
-            lines.append(f"  Total bullets: {len(bullets)} — rewrite ALL of them")
-            lines.append("  Bullets:")
+            lines.append(f"  BULLET COUNT: {len(bullets)} — your output array MUST contain exactly {len(bullets)} bullets")
+            lines.append("  Bullets (rewrite each one individually — do NOT merge):")
             for i, b in enumerate(bullets, 1):
-                lines.append(f"  {i}. {b}")
+                lines.append(f"  [{i}] {b}")
             lines.append("")
 
         return "\n".join(lines) if lines else ""
