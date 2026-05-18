@@ -5,6 +5,7 @@ from langgraph.graph import StateGraph, END
 from packages.pipeline.agents.depth_agent import DepthAgent
 from packages.pipeline.agents.gap_agent import GapAgent
 from packages.pipeline.agents.narrative_agent import NarrativeAgent
+from packages.pipeline.agents.rewriter_agent import RewriterAgent
 from packages.pipeline.agents.state import AssayState
 
 logger = logging.getLogger(__name__)
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 def build_graph(client: AsyncOpenAI, model: str = "gpt-4o-mini"):
     depth_agent = DepthAgent(client, model)
     gap_agent = GapAgent(client, model)
+    rewriter_agent = RewriterAgent(client, model)
     narrative_agent = NarrativeAgent(client, model)
 
     # Node wrapper functions
@@ -19,6 +21,8 @@ def build_graph(client: AsyncOpenAI, model: str = "gpt-4o-mini"):
         return await depth_agent.run(state)
     async def gap_node(state: AssayState) -> dict:
         return await gap_agent.run(state)
+    async def rewriter_node(state: AssayState) -> dict:
+        return await rewriter_agent.run(state)
     async def narrative_node(state: AssayState) -> dict:
         return await narrative_agent.run(state)
     
@@ -28,12 +32,14 @@ def build_graph(client: AsyncOpenAI, model: str = "gpt-4o-mini"):
     # Register nodes
     graph.add_node("depth_agent", depth_node)
     graph.add_node("gap_agent", gap_node)
+    graph.add_node("rewriter_agent", rewriter_node)
     graph.add_node("narrative_agent", narrative_node)
 
     # Set entry point and edges
     graph.set_entry_point("depth_agent")
     graph.add_edge("depth_agent", "gap_agent")
-    graph.add_edge("gap_agent", "narrative_agent")
+    graph.add_edge("gap_agent", "rewriter_agent")
+    graph.add_edge("rewriter_agent", "narrative_agent")
     graph.add_edge("narrative_agent", END)
 
     return graph.compile()

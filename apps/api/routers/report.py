@@ -120,6 +120,7 @@ async def get_report(
         depth_score=DepthScore(**report.depth_score_detail),
         gaps=[GapItem(**g) for g in report.gaps],
         positioning=PositioningBrief(**report.positioning),
+        rewrites=report.rewrites or [],
         signal_note=report.signal_note,
     )
 
@@ -159,8 +160,11 @@ async def stream_report(
                 yield format_event("progress", {"message": "Depth scoring complete. Analyzing gaps..."})
             elif "gap_agent" in chunk:
                 yield format_event("progress", {"message": "Gap analysis complete. Generating positioning..."})
+            elif "rewriter_agent" in chunk:
+                yield format_event("progress", {"message": "Rewriting CV bullets..."})
             elif "narrative_agent" in chunk:
                 yield format_event("progress", {"message": "Positioning complete. Assembling report..."})
+
                 narrative_output = chunk["narrative_agent"]
                 if narrative_output.get("report"):
                     report = narrative_output["report"]
@@ -175,6 +179,7 @@ async def stream_report(
                 "target_role": report.target_role,
                 "depth_score": report.depth_score.model_dump(),
                 "gaps": [g.model_dump() for g in report.gaps],
+                "rewrites": report.rewrites or [],
                 "positioning": report.positioning.model_dump(),
                 "signal_note": report.signal_note,
             })

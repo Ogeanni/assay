@@ -235,6 +235,61 @@ export default function Report() {
           </div>
         )}
 
+
+        {/* CV Rewrites */}
+          {report.rewrites?.length > 0 && (
+            <div>
+              <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em', marginBottom:14}}>YOUR REWRITTEN CV BULLETS</p>
+              {report.rewrites.map((rewrite, ri) => (
+                <div key={ri} style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:16, overflow:'hidden', marginBottom:12}}>
+                  <div style={{padding:'16px 24px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'linear-gradient(135deg,rgba(124,58,237,0.08) 0%,transparent 60%)'}}>
+                    <p style={{fontSize:14, fontWeight:600, color:'white', marginBottom:2}}>{rewrite.company}</p>
+                    <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.4)'}}>{rewrite.role}</p>
+                  </div>
+                  <div style={{padding:'16px 24px', display:'flex', flexDirection:'column', gap:12}}>
+                    {rewrite.bullets?.map((bullet, bi) => (
+                      <div key={bi} style={{
+                        borderLeft: `3px solid ${bullet.status === 'rewritten' ? '#7c3aed' : 'rgba(255,255,255,0.1)'}`,
+                        paddingLeft:16,
+                      }}>
+                        {bullet.status === 'rewritten' ? (
+                          <div>
+                            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:6}}>
+                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(239,68,68,0.7)'}}>✗ original</span>
+                            </div>
+                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.3)', lineHeight:1.6, marginBottom:10, textDecoration:'line-through'}}>{bullet.original}</p>
+                            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:6}}>
+                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa'}}>✓ rewritten</span>
+                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.25)'}}>{bullet.reason}</span>
+                            </div>
+                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.6, marginBottom: bullet.placeholders?.length > 0 ? 8 : 0}}>{bullet.rewritten}</p>
+                            {bullet.placeholders?.length > 0 && (
+                              <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
+                                {bullet.placeholders.map((p, pi) => (
+                                  <span key={pi} style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'3px 10px', borderRadius:100, background:'rgba(245,158,11,0.1)', color:'#fcd34d', border:'1px solid rgba(245,158,11,0.2)'}}>
+                                    Fill in: {p}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div>
+                            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:4}}>
+                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#4ade80'}}>✓ strong — keep</span>
+                            </div>
+                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.55)', lineHeight:1.6}}>{bullet.original}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+
         {/* Positioning */}
         <div>
           <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em', marginBottom:14}}>POSITIONING STRATEGY</p>

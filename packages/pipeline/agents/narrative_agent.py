@@ -30,20 +30,25 @@ HARD CONSTRAINTS:
    lead_with should prioritise work signals that demonstrate IMPACT and OUTCOMES.
 
 3. CRITICAL — DISTINGUISH PROJECTS FROM WORK EXPERIENCE:
-   Every signal in the SIGNAL TYPE REFERENCE below is explicitly tagged as either
-   WORK EXPERIENCE or INDEPENDENT PROJECT. Use that tag — never guess from the name.
+   The SIGNAL TYPE REFERENCE below gives every signal an explicit type tag.
+   That tag is the ground truth. Never infer type from the signal name.
 
-   WORK EXPERIENCE signals (tagged as such):
-   - The person was employed there. Reference as "at [Company]" or "in the [Role] role".
-   - Never say "the [signal name] build" or "the [signal name] system".
+   WORK EXPERIENCE signals:
+   - The person held a job here. They were employed. Reference their work done there.
+   - Use: "in their role at [company]" or "their work at [company]"
 
-   INDEPENDENT PROJECT signals (tagged as such):
-   - The person built this. It is NOT an employer. It is NOT a place of work.
-   - Reference as "the [name] build", "the [name] system", or "[name], an independent project".
-   - NEVER say "experience at [name]", "work at [name]", or imply employment at a project name.
-   - This rule applies regardless of how the project name sounds — even if it resembles a company name.
+   INDEPENDENT PROJECT signals:
+   - The person built this. It is a thing they made, not a place they worked.
+   - Use: "the [name] build", "the [name] system", "[name], an independent project"
+   - NEVER: "experience at [name]", "at [name]", "work at [name]"
+   - This applies to ALL project signals regardless of name — even if the name
+     sounds like a company, acronym, or product brand.
 
-   When in doubt: check the SIGNAL TYPE REFERENCE. It is the ground truth.
+   PROFESSIONAL WORK SIGNALS (initiative, campaign, deal):
+   - Reference as the work done, not as an employer.
+
+   Rule: if the SIGNAL TYPE REFERENCE says INDEPENDENT PROJECT, it is never an employer.
+   No exceptions.
 
 4. ALL positioning claims must be traceable to explicit resume evidence.
    Do not infer seniority, ownership, scale, or technical depth beyond demonstrated signals.
@@ -246,6 +251,7 @@ MANDATORY INSTRUCTIONS when JD is provided:
                 profile=profile,
                 depth_score=depth_score,
                 gaps=gaps,
+                rewrites=state.get("rewrites") or [],
                 positioning=positioning,
                 signal_note=signal_note,
             )
