@@ -75,7 +75,14 @@ async def download_cv(
         logger.error(f"DOCX generation failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="CV generation failed.")
 
-    filename = f"CV_{report.target_role.replace(' ', '_')}_{report_id[:8]}.docx"
+    # Use original uploaded filename if available, otherwise fall back to role name
+    original_name = resume.original_filename or ""
+    if original_name:
+        # Strip extension and add _rewritten suffix
+        base = original_name.rsplit('.', 1)[0] if '.' in original_name else original_name
+        filename = f"{base}_rewritten.docx"
+    else:
+        filename = f"CV_{report.target_role.replace(' ', '_')}_rewritten.docx"
 
     return Response(
         content=docx_bytes,

@@ -32,10 +32,12 @@ If the original already has a specific number, keep it exactly — do not replac
 PROFILE SUMMARY RULES:
 - Rewrite only if a summary exists in the original
 - If no summary exists, set summary_rewrite to null
-- 3-4 lines maximum
-- Structure: [Who you are professionally] + [Strongest signal] + [What you target]
+- Keep the same length as the original — do not shorten or expand significantly
+- Improve clarity, remove filler phrases, ground claims in specific signals
+- Keep the candidate's voice — do not replace their personality with generic language
 - No "passionate about", "results-driven", "dynamic", or filler phrases
-- Ground every claim in a specific signal from their work experience
+- Structure: [Who you are professionally] + [Strongest signal] + [What you target]
+- Ground every claim in a signal actually present in their work experience
 
 BULLET EVALUATION:
 A bullet is STRONG if it has at least two of:
@@ -151,6 +153,27 @@ class RewriterAgent:
 
         return "null"
 
+    def _split_bullets(self, raw_description: str) -> list[str]:
+        """
+        Split bullet text into individual bullets.
+        Handles both numbered list format and concatenated sentence format.
+        """
+        import re
+        raw = raw_description.strip()
+
+        # Numbered list format: "1. bullet\n2. bullet"
+        if re.search(r'^\d+\.', raw, re.MULTILINE):
+            bullets = []
+            for line in raw.split('\n'):
+                b = re.sub(r'^\d+\.\s*', '', line.strip())
+                if b and len(b) > 5:
+                    bullets.append(b)
+            return bullets
+
+        # Concatenated format — split on capital letter after sentence end
+        bullets = re.split(r'(?<=[.!?])\s+(?=[A-Z])', raw)
+        return [b.strip() for b in bullets if b.strip() and len(b.strip()) > 5]
+
     def _build_signals_input(self, profile, depth_score) -> str:
         lines = []
         for signal in profile.work_signals:
@@ -170,11 +193,15 @@ class RewriterAgent:
                     f"impact={score_info.impact_outcomes.score}/3"
                 )
 
+            bullets = self._split_bullets(signal.raw_description)
+
             lines.append(f"Signal: {signal.name}")
             if score_summary:
                 lines.append(score_summary)
+            lines.append(f"  Total bullets: {len(bullets)} — rewrite ALL of them")
             lines.append("  Bullets:")
-            lines.append(signal.raw_description)
+            for i, b in enumerate(bullets, 1):
+                lines.append(f"  {i}. {b}")
             lines.append("")
 
         return "\n".join(lines) if lines else ""

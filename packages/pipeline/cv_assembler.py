@@ -16,7 +16,12 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-def build_markdown_cv(profile, rewrites: list[dict], summary_rewrite: Optional[str], target_role: str,) -> str:
+def build_markdown_cv(
+    profile,
+    rewrites: list[dict],
+    summary_rewrite: Optional[str],
+    target_role: str,
+) -> str:
     """
     Assembles a full rewritten CV in markdown.
     Uses rewritten bullets where available, original bullets otherwise.
@@ -239,10 +244,17 @@ def build_docx_cv(
                         text = f"{text}  [Add detail here]"
                     add_bullet(text)
             else:
-                original_bullets = signal.raw_description.split('\n')
-                for b in original_bullets:
+                # Split bullets — handle both numbered list and concatenated formats
+                raw = signal.raw_description
+                if re.search(r'^\d+\.', raw, re.MULTILINE):
+                    # Numbered list format: "1. bullet\n2. bullet"
+                    bullets = raw.split('\n')
+                else:
+                    # Concatenated format — split on capital letter after sentence end
+                    bullets = re.split(r'(?<=[.!?])\s+(?=[A-Z])', raw)
+                for b in bullets:
                     b = re.sub(r'^\d+\.\s*', '', b.strip())
-                    if b:
+                    if b and len(b) > 10:
                         add_bullet(b)
 
     # ── Projects ─────────────────────────────────
