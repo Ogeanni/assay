@@ -1,6 +1,15 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+const DiamondLogo = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="24" height="24">
+    <polygon points="22,1 43,22 22,43 1,22" fill="none" stroke="#7c3aed" strokeWidth="2.5"/>
+    <polygon points="22,10 34,22 22,34 10,22" fill="#7c3aed" fillOpacity="0.25"/>
+    <polygon points="22,10 34,22 22,34 10,22" fill="none" stroke="#a78bfa" strokeWidth="1.5"/>
+    <circle cx="22" cy="22" r="4.5" fill="#a78bfa"/>
+  </svg>
+)
+
 export default function Navbar({ dark = false }) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
@@ -28,16 +37,9 @@ export default function Navbar({ dark = false }) {
           fontSize: 14, fontWeight: 700,
           color: dark ? 'white' : '#0a0a0a',
           textDecoration: 'none',
-          display: 'flex', alignItems: 'center', gap: 8,
+          display: 'flex', alignItems: 'center', gap: 10,
         }}>
-          <span style={{
-            width: 22, height: 22, borderRadius: 6,
-            background: '#7c3aed',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 11, fontWeight: 700,
-            fontFamily: 'JetBrains Mono, monospace',
-            color: 'white',
-          }}>A</span>
+          <DiamondLogo />
           ASSAY
         </Link>
 
