@@ -18,6 +18,15 @@ const ssoBtn = {
   color: 'white', textDecoration: 'none', transition: 'all 0.2s', width: '100%',
 }
 
+const DiamondLogo = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="24" height="24">
+    <polygon points="22,1 43,22 22,43 1,22" fill="none" stroke="#7c3aed" strokeWidth="2.5"/>
+    <polygon points="22,10 34,22 22,34 10,22" fill="#7c3aed" fillOpacity="0.25"/>
+    <polygon points="22,10 34,22 22,34 10,22" fill="none" stroke="#a78bfa" strokeWidth="1.5"/>
+    <circle cx="22" cy="22" r="4.5" fill="#a78bfa"/>
+  </svg>
+)
+
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState(null)
@@ -45,8 +54,8 @@ export default function Login() {
       <div style={{position:'fixed', inset:0, pointerEvents:'none', zIndex:0, background:'radial-gradient(ellipse 80% 50% at 10% 5%, rgba(88,28,135,0.16) 0%, transparent 55%)'}} />
 
       <nav style={{borderBottom:'1px solid rgba(255,255,255,0.07)', background:'rgba(22,13,30,0.85)', backdropFilter:'blur(12px)', position:'relative', zIndex:10, padding:'0 32px', height:56, display:'flex', alignItems:'center'}}>
-        <Link to="/" style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:14, fontWeight:700, color:'white', textDecoration:'none', display:'flex', alignItems:'center', gap:8}}>
-          <span style={{width:22, height:22, borderRadius:6, background:'#7c3aed', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, fontFamily:'JetBrains Mono,monospace', color:'white'}}>A</span>
+        <Link to="/" style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:14, fontWeight:700, color:'white', textDecoration:'none', display:'flex', alignItems:'center', gap:10}}>
+          <DiamondLogo />
           ASSAY
         </Link>
       </nav>
@@ -60,7 +69,6 @@ export default function Login() {
             <Link to="/register" style={{color:'#a78bfa', textDecoration:'underline', textUnderlineOffset:3}}>Create one</Link>
           </p>
 
-          {/* SSO buttons */}
           <div style={{display:'flex', flexDirection:'column', gap:10, marginBottom:20}}>
             <a href={`${BACKEND_URL}/auth/google`} style={{...ssoBtn, background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.1)'}}>
               <svg width="18" height="18" viewBox="0 0 18 18">
@@ -79,7 +87,6 @@ export default function Login() {
             </a>
           </div>
 
-          {/* Divider */}
           <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:20}}>
             <div style={{flex:1, height:1, background:'rgba(255,255,255,0.08)'}} />
             <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.3)'}}>or</span>
