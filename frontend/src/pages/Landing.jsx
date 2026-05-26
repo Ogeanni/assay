@@ -501,7 +501,7 @@ export default function Landing() {
                 transition:'all 0.2s',
                 animation:'btnGlow 3s ease-in-out infinite',
               }}>
-                Start free — no card needed →
+                Start for free →
               </Link>
             </div>
 
@@ -530,7 +530,7 @@ export default function Landing() {
         <div style={{maxWidth:1100, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
           <div style={{display:'flex', alignItems:'center', gap:10}}>
             <DiamondLogo />
-            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#6b7280'}}>ASSAY © 2025</p>
+            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#6b7280'}}>ASSAY © 2026</p>
           </div>
           <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#9ca3af'}}>talent intelligence</p>
         </div>
