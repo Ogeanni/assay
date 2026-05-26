@@ -81,13 +81,71 @@ const DiamondLogo = () => (
 )
 
 export default function Landing() {
+  const [heroLoaded, setHeroLoaded] = useState(false)
+  useEffect(() => { setTimeout(() => setHeroLoaded(true), 100) }, [])
+
   return (
     <div style={{background:'#f0eef8', minHeight:'100vh', color:'#0f0a1e'}}>
+
+      <style>{`
+        @keyframes meshShift {
+          0% { transform: scale(1) rotate(0deg); opacity: 1; }
+          100% { transform: scale(1.06) rotate(1.5deg); opacity: 0.85; }
+        }
+        @keyframes float1 {
+          0%, 100% { transform: translate(0,0) scale(1); }
+          50% { transform: translate(32px,22px) scale(1.1); }
+        }
+        @keyframes float2 {
+          0%, 100% { transform: translate(0,0) scale(1); }
+          50% { transform: translate(-22px,-28px) scale(0.9); }
+        }
+        @keyframes float3 {
+          0%, 100% { transform: translate(0,0); }
+          50% { transform: translate(-14px,18px); }
+        }
+        @keyframes float4 {
+          0%, 100% { transform: translate(0,0) scale(1); }
+          33% { transform: translate(12px,-14px) scale(1.06); }
+          66% { transform: translate(-8px,10px) scale(0.95); }
+        }
+        @keyframes cardBob {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-8px); }
+        }
+        @keyframes badgePulse {
+          0%, 100% { opacity:1; transform:scale(1); }
+          50% { opacity:0.55; transform:scale(0.75); }
+        }
+        @keyframes btnGlow {
+          0%, 100% { box-shadow: 0 4px 20px rgba(245,158,11,0.35); }
+          50% { box-shadow: 0 4px 32px rgba(245,158,11,0.6); }
+        }
+        @keyframes slideIn {
+          from { opacity:0; transform:translateY(22px); }
+          to { opacity:1; transform:translateY(0); }
+        }
+        @keyframes slideRight { from { width:0 } }
+        @keyframes marquee { from { transform:translateX(0) } to { transform:translateX(-50%) } }
+        @keyframes spin { to { transform:rotate(360deg) } }
+        .hero-badge { animation: slideIn 0.7s 0.1s ease both; }
+        .hero-h1    { animation: slideIn 0.7s 0.25s ease both; }
+        .hero-sub   { animation: slideIn 0.7s 0.4s ease both; }
+        .hero-cta   { animation: slideIn 0.7s 0.55s ease both; }
+        .hero-trust { animation: slideIn 0.7s 0.7s ease both; }
+        .card-a { animation: cardBob 6s ease-in-out infinite; }
+        .card-b { animation: cardBob 8s 1.2s ease-in-out infinite; }
+        .card-c { animation: cardBob 7s 2.5s ease-in-out infinite; }
+        .btn-amber:hover { background:#d97706!important; transform:translateY(-2px); }
+        .nav-link:hover { color:#0f0a1e!important; }
+        .how-card:hover { transform:translateY(-6px)!important; }
+        .rubric-card:hover { transform:translateY(-4px)!important; }
+      `}</style>
 
       {/* ── Navbar ─────────────────────────────── */}
       <nav style={{
         borderBottom:'1px solid rgba(124,58,237,0.1)',
-        background:'rgba(240,238,248,0.95)',
+        background:'rgba(240,238,248,0.92)',
         backdropFilter:'blur(12px)',
         position:'sticky', top:0, zIndex:50,
       }}>
@@ -97,19 +155,14 @@ export default function Landing() {
             ASSAY
           </Link>
           <div style={{display:'flex', alignItems:'center', gap:28}}>
-            <Link to="/login" style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#6b7280', textDecoration:'none', transition:'color 0.2s'}}
-              onMouseEnter={e => e.target.style.color='#0f0a1e'}
-              onMouseLeave={e => e.target.style.color='#6b7280'}
-            >Sign in</Link>
-            <Link to="/register" style={{
+            <Link to="/login" className="nav-link" style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#6b7280', textDecoration:'none', transition:'color 0.2s'}}>Sign in</Link>
+            <Link to="/register" className="btn-amber" style={{
               fontFamily:'JetBrains Mono,monospace', fontSize:12, fontWeight:600,
               background:'#f59e0b', color:'#1a0a00', padding:'9px 20px',
               borderRadius:8, textDecoration:'none', transition:'all 0.2s',
               boxShadow:'0 2px 8px rgba(245,158,11,0.3)',
-            }}
-              onMouseEnter={e => { e.target.style.background='#d97706'; e.target.style.transform='translateY(-1px)' }}
-              onMouseLeave={e => { e.target.style.background='#f59e0b'; e.target.style.transform='translateY(0)' }}
-            >
+              animation:'btnGlow 3s ease-in-out infinite',
+            }}>
               Get started
             </Link>
           </div>
@@ -118,53 +171,93 @@ export default function Landing() {
 
       {/* ── Hero ───────────────────────────────── */}
       <section style={{maxWidth:1100, margin:'0 auto', padding:'80px 24px 60px', position:'relative', overflow:'hidden'}}>
-        {/* Background colour blobs */}
-        <div style={{position:'absolute', top:-80, left:-80, width:500, height:500, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%)', pointerEvents:'none'}} />
-        <div style={{position:'absolute', top:20, right:-60, width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle, rgba(245,158,11,0.07) 0%, transparent 70%)', pointerEvents:'none'}} />
 
-        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, alignItems:'center', position:'relative', zIndex:1}}>
-          {/* Left — text */}
+        {/* Mesh gradient */}
+        <div style={{
+          position:'absolute', inset:0, pointerEvents:'none',
+          background:`
+            radial-gradient(ellipse 65% 55% at 8% 15%, rgba(124,58,237,0.13) 0%, transparent 60%),
+            radial-gradient(ellipse 55% 65% at 92% 85%, rgba(245,158,11,0.11) 0%, transparent 60%),
+            radial-gradient(ellipse 45% 45% at 50% 50%, rgba(167,139,250,0.07) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 40% at 82% 12%, rgba(252,211,77,0.08) 0%, transparent 60%)
+          `,
+          animation:'meshShift 12s ease-in-out infinite alternate',
+        }} />
+
+        {/* Dot grid */}
+        <div style={{
+          position:'absolute', inset:0, pointerEvents:'none',
+          backgroundImage:'radial-gradient(circle, rgba(124,58,237,0.14) 1px, transparent 1px)',
+          backgroundSize:'28px 28px', opacity:0.45,
+        }} />
+
+        {/* Floating orbs */}
+        <div style={{position:'absolute', width:300, height:300, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%)', filter:'blur(45px)', top:-80, left:-60, pointerEvents:'none', animation:'float1 8s ease-in-out infinite'}} />
+        <div style={{position:'absolute', width:240, height:240, borderRadius:'50%', background:'radial-gradient(circle, rgba(245,158,11,0.14) 0%, transparent 70%)', filter:'blur(40px)', bottom:-60, right:-40, pointerEvents:'none', animation:'float2 10s ease-in-out infinite'}} />
+        <div style={{position:'absolute', width:180, height:180, borderRadius:'50%', background:'radial-gradient(circle, rgba(167,139,250,0.13) 0%, transparent 70%)', filter:'blur(35px)', top:'40%', right:'8%', pointerEvents:'none', animation:'float3 7s ease-in-out infinite'}} />
+        <div style={{position:'absolute', width:130, height:130, borderRadius:'50%', background:'radial-gradient(circle, rgba(252,211,77,0.13) 0%, transparent 70%)', filter:'blur(30px)', top:'12%', left:'38%', pointerEvents:'none', animation:'float4 9s ease-in-out infinite'}} />
+
+        {/* Floating mini cards */}
+        <div className="card-a" style={{position:'absolute', top:70, right:60, zIndex:2, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
+          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa', marginBottom:4}}>DEPTH SCORE</div>
+          <div style={{display:'flex', alignItems:'baseline', gap:4}}>
+            <span style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:22, fontWeight:800, color:'#7c3aed'}}>83</span>
+            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#a78bfa'}}>/100 · Proficient</span>
+          </div>
+        </div>
+
+        <div className="card-b" style={{position:'absolute', bottom:80, left:60, zIndex:2, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(245,158,11,0.15)'}}>
+          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#f59e0b', marginBottom:4}}>REWRITTEN BULLET</div>
+          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#0f0a1e'}}>Ready to paste ✓</div>
+        </div>
+
+        <div className="card-c" style={{position:'absolute', top:'52%', right:30, zIndex:2, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
+          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#6b7280', marginBottom:4}}>GAP IDENTIFIED</div>
+          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#7c3aed'}}>Impact & Outcomes ↑</div>
+        </div>
+
+        {/* Hero text — left column */}
+        <div style={{position:'relative', zIndex:1, display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, alignItems:'center'}}>
           <div>
-           
+            
 
-            <h1 style={{
+            <h1 className="hero-h1" style={{
               fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800,
-              fontSize:'clamp(36px,4vw,56px)',
+              fontSize:'clamp(34px,3.8vw,52px)',
               lineHeight:1.08, letterSpacing:'-0.02em',
               color:'#0f0a1e', marginBottom:20,
             }}>
               The market doesn't need more resumes.{' '}
-              <span style={{color:'#7c3aed'}}>It needs proof.</span>
+              <span style={{
+                background:'linear-gradient(135deg, #7c3aed 0%, #f59e0b 100%)',
+                WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent',
+                backgroundClip:'text',
+              }}>
+                It needs proof.
+              </span>
             </h1>
 
-            <p style={{fontSize:17, color:'#4b5563', lineHeight:1.75, marginBottom:36, maxWidth:460}}>
+            <p className="hero-sub" style={{fontSize:17, color:'#4b5563', lineHeight:1.75, marginBottom:36, maxWidth:460}}>
               ASSAY scores your professional depth, not keywords, not titles, not years.
               What you actually did, how you thought, and whether it mattered.
             </p>
 
-            <div style={{display:'flex', alignItems:'center', gap:16, flexWrap:'wrap'}}>
-              <Link to="/register" style={{
+            <div className="hero-cta" style={{display:'flex', alignItems:'center', gap:16, flexWrap:'wrap'}}>
+              <Link to="/register" className="btn-amber" style={{
                 background:'#f59e0b', color:'#1a0a00',
                 padding:'14px 32px', borderRadius:10,
-                fontWeight:600, fontSize:15, textDecoration:'none',
+                fontWeight:700, fontSize:15, textDecoration:'none',
                 transition:'all 0.2s',
-                boxShadow:'0 4px 16px rgba(245,158,11,0.35)',
-              }}
-                onMouseEnter={e => { e.target.style.background='#d97706'; e.target.style.transform='translateY(-2px)'; e.target.style.boxShadow='0 8px 24px rgba(245,158,11,0.4)' }}
-                onMouseLeave={e => { e.target.style.background='#f59e0b'; e.target.style.transform='translateY(0)'; e.target.style.boxShadow='0 4px 16px rgba(245,158,11,0.35)' }}
-              >
+                animation:'btnGlow 3s ease-in-out infinite',
+              }}>
                 Analyze your resume →
               </Link>
-              <Link to="/login" style={{fontSize:14, color:'#6b7280', textDecoration:'none', transition:'color 0.2s'}}
-                onMouseEnter={e => e.target.style.color='#0f0a1e'}
-                onMouseLeave={e => e.target.style.color='#6b7280'}
-              >
+              <Link to="/login" className="nav-link" style={{fontSize:14, color:'#6b7280', textDecoration:'none', transition:'color 0.2s'}}>
                 Sign in
               </Link>
             </div>
 
-            {/* Trust signals */}
-            <div style={{display:'flex', alignItems:'center', gap:20, marginTop:32}}>
+            <div className="hero-trust" style={{display:'flex', alignItems:'center', gap:20, marginTop:28, flexWrap:'wrap'}}>
               {['47 career types', 'Free to start', 'No card needed'].map((t, i) => (
                 <div key={i} style={{display:'flex', alignItems:'center', gap:6}}>
                   <span style={{width:16, height:16, borderRadius:'50%', background:'rgba(124,58,237,0.1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, color:'#7c3aed'}}>✓</span>
@@ -177,32 +270,26 @@ export default function Landing() {
           {/* Right — product screenshot */}
           <div style={{position:'relative'}}>
             <div style={{
-              position:'absolute', inset:-2,
-              borderRadius:20,
+              position:'absolute', inset:-2, borderRadius:20,
               background:'linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(245,158,11,0.15) 100%)',
-              filter:'blur(16px)',
-              zIndex:0,
+              filter:'blur(16px)', zIndex:0,
             }} />
             <div style={{
-              position:'relative', zIndex:1,
-              borderRadius:16,
-              overflow:'hidden',
+              position:'relative', zIndex:1, borderRadius:16, overflow:'hidden',
               border:'1px solid rgba(124,58,237,0.15)',
               boxShadow:'0 24px 60px rgba(15,10,30,0.12), 0 4px 16px rgba(124,58,237,0.08)',
-            }}>
-              <img
-                src="/card.png"
-                alt="ASSAY depth score report"
-                style={{width:'100%', display:'block', borderRadius:12}}
-                onError={e => {
-                  e.target.style.display = 'none'
-                  e.target.nextSibling.style.display = 'flex'
-                }}
+              transition:'transform 0.3s ease',
+            }}
+              onMouseEnter={e => e.currentTarget.style.transform='translateY(-6px)'}
+              onMouseLeave={e => e.currentTarget.style.transform='translateY(0)'}
+            >
+              <img src="/card.png" alt="ASSAY depth score report" style={{width:'100%', display:'block', borderRadius:12}}
+                onError={e => { e.target.style.display='none'; e.target.nextSibling.style.display='flex' }}
               />
-              {/* Fallback if image missing */}
+              {/* Fallback */}
               <div style={{display:'none', background:'#160d1e', minHeight:320, borderRadius:12, alignItems:'center', justifyContent:'center', flexDirection:'column', gap:12, padding:32}}>
-                <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.1em', marginBottom:8}}>DEPTH SCORE</div>
-                <div style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:72, fontWeight:800, color:'#a78bfa', lineHeight:1}}>83</div>
+                <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.1em'}}>DEPTH SCORE</div>
+                <div style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:64, fontWeight:800, color:'#a78bfa', lineHeight:1}}>83</div>
                 <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:13, color:'rgba(255,255,255,0.4)'}}>/100 · Proficient</div>
                 <div style={{marginTop:12, width:'100%', display:'flex', flexDirection:'column', gap:8}}>
                   {['Problem Framing','Approach & Decisions','Adaptability','Impact & Outcomes'].map((d,i) => (
@@ -216,18 +303,17 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            {/* Floating badge */}
+            {/* Badge below image */}
             <div style={{
               position:'absolute', bottom:-16, left:-16, zIndex:2,
               background:'white', borderRadius:12, padding:'10px 16px',
-              boxShadow:'0 8px 24px rgba(15,10,30,0.12)',
-              border:'1px solid rgba(124,58,237,0.1)',
+              boxShadow:'0 8px 24px rgba(15,10,30,0.12)', border:'1px solid rgba(124,58,237,0.1)',
               display:'flex', alignItems:'center', gap:10,
             }}>
               <span style={{fontSize:18}}>⚡</span>
               <div>
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#7c3aed', marginBottom:2}}>DEPTH SCORE</p>
-                <p style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:16, fontWeight:700, color:'#0f0a1e'}}>83/100 · Proficient</p>
+                <p style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:15, fontWeight:700, color:'#0f0a1e'}}>83/100 · Proficient</p>
               </div>
             </div>
           </div>
@@ -247,7 +333,10 @@ export default function Landing() {
       </div>
 
       {/* ── How it works ────────────────────────── */}
-      <section style={{maxWidth:1100, margin:'0 auto', padding:'100px 24px'}}>
+      <section style={{maxWidth:1100, margin:'0 auto', padding:'100px 24px', position:'relative'}}>
+        {/* Subtle bg blob */}
+        <div style={{position:'absolute', top:0, right:-100, width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)', filter:'blur(40px)', pointerEvents:'none'}} />
+
         <AnimateIn>
           <div style={{display:'flex', alignItems:'center', gap:10, marginBottom:16}}>
             <div style={{width:3, height:20, borderRadius:2, background:'linear-gradient(180deg, #7c3aed, #f59e0b)'}} />
@@ -260,24 +349,24 @@ export default function Landing() {
             Upload. Score. Improve. Works for every career type, on its own terms.
           </p>
         </AnimateIn>
+
         <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16}}>
           {[
-            { n:'01', title:'Upload your resume', body:'PDF in. ASSAY reads it across all career types, not just engineering.', icon:'📄', accent:'#7c3aed' },
-            { n:'02', title:'Score in seconds', body:'The system evaluates your work against the rubric. Every career on its own terms.', icon:'⚡', accent:'#f59e0b' },
-            { n:'03', title:'Get honest positioning', body:'What to lead with, what to fix, and exactly how to rewrite it.', icon:'🎯', accent:'#7c3aed' },
+            { n:'01', title:'Upload your resume', body:'PDF in. ASSAY reads it across all career types, not just engineering.', icon:'📄', accent:'#7c3aed', glow:'rgba(124,58,237,0.08)' },
+            { n:'02', title:'Score in seconds', body:'The system evaluates your work against the rubric. Every career on its own terms.', icon:'⚡', accent:'#f59e0b', glow:'rgba(245,158,11,0.06)' },
+            { n:'03', title:'Get honest positioning', body:'What to lead with, what to fix, and exactly how to rewrite it.', icon:'🎯', accent:'#7c3aed', glow:'rgba(124,58,237,0.08)' },
           ].map((item, i) => (
             <AnimateIn key={item.n} delay={i * 0.1}>
-              <div style={{
-                background:'#faf9fe',
-                border:'1px solid rgba(124,58,237,0.1)',
+              <div className="how-card" style={{
+                background:'white', border:'1px solid rgba(124,58,237,0.08)',
                 borderRadius:16, padding:'32px 28px',
-                transition:'all 0.2s', height:'100%',
-                boxShadow:'0 2px 8px rgba(15,10,30,0.04)',
+                transition:'all 0.3s ease', height:'100%',
+                boxShadow:'0 2px 12px rgba(15,10,30,0.04)',
               }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor=`${item.accent}40`; e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow=`0 12px 32px ${item.accent}14` }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(124,58,237,0.1)'; e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 2px 8px rgba(15,10,30,0.04)' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor=`${item.accent}40`; e.currentTarget.style.boxShadow=`0 16px 40px ${item.glow}, 0 2px 12px rgba(15,10,30,0.04)` }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(124,58,237,0.08)'; e.currentTarget.style.boxShadow='0 2px 12px rgba(15,10,30,0.04)' }}
               >
-                <div style={{width:44, height:44, borderRadius:12, background:`${item.accent}12`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, marginBottom:20}}>{item.icon}</div>
+                <div style={{width:48, height:48, borderRadius:14, background:`${item.accent}12`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, marginBottom:20}}>{item.icon}</div>
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:item.accent, marginBottom:10}}>{item.n}</p>
                 <h3 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:600, fontSize:17, color:'#0f0a1e', marginBottom:10}}>{item.title}</h3>
                 <p style={{fontSize:14, color:'#4b5563', lineHeight:1.7}}>{item.body}</p>
@@ -287,11 +376,10 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── Rubric ──────────────────────────────── */}
+      {/* ── Rubric — dark section ────────────────── */}
       <section style={{background:'#0f0a1e', padding:'100px 0', position:'relative', overflow:'hidden'}}>
-        {/* Background blobs */}
-        <div style={{position:'absolute', top:-100, left:-100, width:500, height:500, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)', pointerEvents:'none'}} />
-        <div style={{position:'absolute', bottom:-100, right:-100, width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)', pointerEvents:'none'}} />
+        <div style={{position:'absolute', top:-100, left:-100, width:500, height:500, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)', filter:'blur(60px)', pointerEvents:'none'}} />
+        <div style={{position:'absolute', bottom:-100, right:-100, width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 70%)', filter:'blur(60px)', pointerEvents:'none'}} />
 
         <div style={{maxWidth:1100, margin:'0 auto', padding:'0 24px', position:'relative', zIndex:1}}>
           <AnimateIn>
@@ -300,12 +388,16 @@ export default function Landing() {
               <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.1em'}}>THE RUBRIC</p>
             </div>
             <h2 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800, fontSize:'clamp(28px,3.5vw,44px)', color:'white', marginBottom:16, lineHeight:1.1}}>
-              Four questions.<br />Every career. No exceptions.
+              Four questions.<br />
+              <span style={{background:'linear-gradient(135deg, #a78bfa 0%, #fcd34d 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text'}}>
+                Every career. No exceptions.
+              </span>
             </h2>
             <p style={{fontSize:16, color:'rgba(255,255,255,0.55)', marginBottom:64, maxWidth:460}}>
               Works for engineers, CSMs, marketers, operators, sellers — any professional, same rubric.
             </p>
           </AnimateIn>
+
           <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16}}>
             {[
               { icon:'🎯', name:'Problem Framing', q:'Did you know why it mattered?', bad:'"Managed customer onboarding"', good:'"Identified 3-day bottleneck at step 2 — redesigned workflow, cut time-to-active by 30% across 120 accounts"' },
@@ -314,9 +406,9 @@ export default function Landing() {
               { icon:'📈', name:'Impact & Outcomes', q:'Did it change anything measurable?', bad:'"Handled 50+ accounts"', good:'"Grew NRR from 94% to 108% across 47 enterprise accounts over 6 months"' },
             ].map((item, i) => (
               <AnimateIn key={item.name} delay={i * 0.08}>
-                <div style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'24px', transition:'all 0.2s'}}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(167,139,250,0.3)'; e.currentTarget.style.transform='translateY(-4px)' }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.08)'; e.currentTarget.style.transform='translateY(0)' }}
+                <div className="rubric-card" style={{background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:20, padding:'24px', transition:'all 0.3s ease'}}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(167,139,250,0.3)'; e.currentTarget.style.boxShadow='0 12px 40px rgba(124,58,237,0.15)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,0.08)'; e.currentTarget.style.boxShadow='none'; }}
                 >
                   <div style={{marginBottom:6, display:'flex', alignItems:'center', gap:8}}>
                     <span style={{fontSize:16}}>{item.icon}</span>
@@ -341,7 +433,8 @@ export default function Landing() {
       </section>
 
       {/* ── Stats ───────────────────────────────── */}
-      <section style={{maxWidth:1100, margin:'0 auto', padding:'100px 24px'}}>
+      <section style={{maxWidth:1100, margin:'0 auto', padding:'100px 24px', position:'relative'}}>
+        <div style={{position:'absolute', top:0, left:-80, width:350, height:350, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%)', filter:'blur(40px)', pointerEvents:'none'}} />
         <AnimateIn>
           <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16}}>
             {[
@@ -351,11 +444,13 @@ export default function Landing() {
             ].map((item) => (
               <div key={item.stat} style={{
                 textAlign:'center', padding:'48px 24px',
-                background:'#faf9fe',
-                border:'1px solid rgba(124,58,237,0.1)',
-                borderRadius:16,
-                boxShadow:'0 2px 8px rgba(15,10,30,0.04)',
-              }}>
+                background:'white', border:'1px solid rgba(124,58,237,0.08)',
+                borderRadius:16, boxShadow:'0 2px 12px rgba(15,10,30,0.04)',
+                transition:'all 0.3s ease',
+              }}
+                onMouseEnter={e => { e.currentTarget.style.transform='translateY(-4px)'; e.currentTarget.style.boxShadow=`0 16px 40px rgba(15,10,30,0.08)` }}
+                onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 2px 12px rgba(15,10,30,0.04)' }}
+              >
                 <p style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800, fontSize:56, color:item.accent, lineHeight:1, marginBottom:12}}>{item.stat}</p>
                 <p style={{fontSize:14, color:'#6b7280'}}>{item.label}</p>
               </div>
@@ -374,32 +469,32 @@ export default function Landing() {
             position:'relative', overflow:'hidden',
             display:'flex', alignItems:'center', justifyContent:'space-between', gap:40,
           }}>
-            <div style={{position:'absolute', top:-100, right:-100, width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%)', pointerEvents:'none'}} />
-            <div style={{position:'absolute', bottom:-60, left:80, width:250, height:250, borderRadius:'50%', background:'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)', pointerEvents:'none'}} />
+            <div style={{position:'absolute', top:-100, right:-100, width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%)', filter:'blur(40px)', pointerEvents:'none'}} />
+            <div style={{position:'absolute', bottom:-60, left:80, width:250, height:250, borderRadius:'50%', background:'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)', filter:'blur(40px)', pointerEvents:'none'}} />
 
             <div style={{position:'relative', zIndex:1}}>
-              <h2 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800, fontSize:'clamp(28px,3.5vw,48px)', color:'white', marginBottom:12, lineHeight:1.1}}>
+              <h2 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800, fontSize:'clamp(28px,3.5vw,48px)', color:'white', marginBottom:8, lineHeight:1.1}}>
                 Don't claim it.
               </h2>
-              <h2 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800, fontSize:'clamp(28px,3.5vw,48px)', color:'#fcd34d', marginBottom:28, lineHeight:1.1}}>
+              <h2 style={{
+                fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800, fontSize:'clamp(28px,3.5vw,48px)', marginBottom:28, lineHeight:1.1,
+                background:'linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%)',
+                WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text',
+              }}>
                 Prove it.
               </h2>
-              <Link to="/register" style={{
+              <Link to="/register" className="btn-amber" style={{
                 display:'inline-flex', alignItems:'center', gap:8,
                 background:'#f59e0b', color:'#1a0a00',
                 padding:'14px 28px', borderRadius:10,
-                fontWeight:600, fontSize:15, textDecoration:'none',
+                fontWeight:700, fontSize:15, textDecoration:'none',
                 transition:'all 0.2s',
-                boxShadow:'0 4px 20px rgba(245,158,11,0.4)',
-              }}
-                onMouseEnter={e => { e.target.style.background='#d97706'; e.target.style.transform='translateY(-2px)' }}
-                onMouseLeave={e => { e.target.style.background='#f59e0b'; e.target.style.transform='translateY(0)' }}
-              >
+                animation:'btnGlow 3s ease-in-out infinite',
+              }}>
                 Start free — no card needed →
               </Link>
             </div>
 
-            {/* Right side — score preview */}
             <div style={{position:'relative', zIndex:1, flexShrink:0}}>
               <div style={{background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)', borderRadius:16, padding:'24px 32px', minWidth:220}}>
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa', letterSpacing:'0.1em', marginBottom:8}}>YOUR SCORE</p>
