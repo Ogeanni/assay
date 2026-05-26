@@ -75,7 +75,7 @@ export default function Jobs() {
   return (
     <AppLayout>
       <div style={{marginBottom:40}}>
-        <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.08em', marginBottom:12}}>JOB SEARCH</p>
+        <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#f59e0b', letterSpacing:'0.08em', marginBottom:12}}>JOB SEARCH</p>
         <h1 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:700, fontSize:36, color:'white', marginBottom:8, lineHeight:1.1}}>
           Find a role. Analyze against it.
         </h1>
@@ -185,7 +185,7 @@ export default function Jobs() {
                         <div style={{display:'flex', alignItems:'center', gap:12, flexWrap:'wrap'}}>
                           {job.company && <span style={{fontSize:13, color:'rgba(255,255,255,0.6)'}}>{job.company}</span>}
                           {job.location && <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.35)'}}>{job.location}</span>}
-                          {salary && <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa'}}>{salary}</span>}
+                          {salary && <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#fcd34d'}}>{salary}</span>}
                           {job.contract_type && (
                             <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'2px 8px', borderRadius:100, background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.4)', border:'1px solid rgba(255,255,255,0.08)'}}>
                               {job.contract_type}
@@ -203,7 +203,7 @@ export default function Jobs() {
                         </button>
                         <button
                           onClick={() => navigate('/analyze', { state: { prefill: { targetRole: job.title, jobDescription: job.description } } })}
-                          style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'7px 16px', borderRadius:8, background:'#7c3aed', color:'white', border:'none', cursor:'pointer'}}
+                          style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'7px 16px', borderRadius:8, background:'#f59e0b', color:'#1a0a00', border:'none', cursor:'pointer', fontWeight:600}}
                         >
                           Analyze →
                         </button>
@@ -217,7 +217,7 @@ export default function Jobs() {
                         </p>
                         {job.redirect_url && (
                           <a href={job.redirect_url} target="_blank" rel="noopener noreferrer"
-                            style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', display:'inline-block', marginTop:12, textDecoration:'underline'}}>
+                            style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#f59e0b', display:'inline-block', marginTop:12, textDecoration:'underline'}}>
                             View full listing →
                           </a>
                         )}

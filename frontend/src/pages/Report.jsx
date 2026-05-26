@@ -86,17 +86,14 @@ function CopyButton({ text }) {
     setTimeout(() => setCopied(false), 2000)
   }
   return (
-    <button
-      onClick={copy}
-      style={{
-        fontFamily:'JetBrains Mono,monospace', fontSize:10,
-        padding:'4px 10px', borderRadius:6, cursor:'pointer',
-        background: copied ? 'rgba(74,222,128,0.15)' : 'rgba(124,58,237,0.15)',
-        color: copied ? '#4ade80' : '#a78bfa',
-        border: `1px solid ${copied ? 'rgba(74,222,128,0.3)' : 'rgba(124,58,237,0.25)'}`,
-        transition:'all 0.2s', flexShrink:0,
-      }}
-    >
+    <button onClick={copy} style={{
+      fontFamily:'JetBrains Mono,monospace', fontSize:10,
+      padding:'4px 10px', borderRadius:6, cursor:'pointer',
+      background: copied ? 'rgba(74,222,128,0.15)' : 'rgba(245,158,11,0.12)',
+      color: copied ? '#4ade80' : '#fcd34d',
+      border: `1px solid ${copied ? 'rgba(74,222,128,0.3)' : 'rgba(245,158,11,0.25)'}`,
+      transition:'all 0.2s', flexShrink:0,
+    }}>
       {copied ? '✓ Copied' : 'Copy'}
     </button>
   )
@@ -110,15 +107,12 @@ export default function Report() {
   const [fetching, setFetching] = useState(false)
   const [fetchError, setFetchError] = useState(false)
 
-
   useEffect(() => {
     if (!report && id) {
       setFetching(true)
       getReport(id).then(r => setReport(r.data)).catch(() => setFetchError(true)).finally(() => setFetching(false))
     }
   }, [id])
-
-
 
   if (fetching) return (
     <AppLayout>
@@ -132,7 +126,7 @@ export default function Report() {
     <AppLayout>
       <div style={{textAlign:'center', padding:'80px 32px'}}>
         <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.3)', marginBottom:16}}>Report not found</p>
-        <button onClick={() => navigate('/analyze')} style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#a78bfa', background:'none', border:'none', cursor:'pointer', textDecoration:'underline'}}>
+        <button onClick={() => navigate('/analyze')} style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#f59e0b', background:'none', border:'none', cursor:'pointer', textDecoration:'underline'}}>
           Run a new analysis →
         </button>
       </div>
@@ -149,7 +143,8 @@ export default function Report() {
         {/* Header */}
         <div style={{display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:16}}>
           <div>
-            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.08em', marginBottom:12}}>ANALYSIS COMPLETE</p>
+            {/* ANALYSIS COMPLETE — amber: it's a completion moment, human */}
+            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#f59e0b', letterSpacing:'0.08em', marginBottom:12}}>ANALYSIS COMPLETE</p>
             <h1 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:700, fontSize:36, color:'white', lineHeight:1.1}}>{target_role}</h1>
           </div>
           <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, fontWeight:500, padding:'6px 16px', borderRadius:100, background:lc.bg, color:lc.text, border:`1px solid ${lc.border}`, flexShrink:0, marginTop:4}}>
@@ -157,11 +152,9 @@ export default function Report() {
           </span>
         </div>
 
-
-
-        {/* Score card */}
+        {/* Score card — purple: pure intelligence output */}
         <div style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:20, overflow:'hidden', boxShadow:'0 0 0 1px rgba(124,58,237,0.1)'}}>
-          <div style={{padding:'32px 36px 24px', background:'linear-gradient(135deg,rgba(124,58,237,0.1) 0%,transparent 60%)', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
+          <div style={{padding:'32px 36px 24px', background:'linear-gradient(135deg,rgba(124,58,237,0.1) 0%,rgba(245,158,11,0.03) 100%)', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
             <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:28}}>
               <div>
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(167,139,250,0.7)', letterSpacing:'0.1em', marginBottom:10}}>DEPTH SCORE</p>
@@ -240,7 +233,10 @@ export default function Report() {
                       <div style={{marginTop:4}}>
                         <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', marginBottom:10}}>REWRITTEN BULLET — PASTE INTO YOUR CV</p>
                         <div style={{background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.25)', borderRadius:10, padding:'14px 16px', marginBottom: gap.placeholders?.length > 0 ? 10 : 0}}>
-                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.7}}>{gap.rewritten_bullet}</p>
+                          <div style={{display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12}}>
+                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.7, flex:1}}>{gap.rewritten_bullet}</p>
+                            <CopyButton text={gap.rewritten_bullet} />
+                          </div>
                         </div>
                         {gap.placeholders?.length > 0 && (
                           <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
@@ -260,13 +256,13 @@ export default function Report() {
           </div>
         )}
 
-        {/* CV Rewrites */}
+        {/* CV Rewrites — purple border left on rewritten, amber on needs_detail */}
         {report.rewrites?.length > 0 && (
           <div>
             <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em', marginBottom:14}}>YOUR REWRITTEN CV BULLETS</p>
             {report.rewrites.map((rewrite, ri) => (
               <div key={ri} style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:16, overflow:'hidden', marginBottom:12}}>
-                <div style={{padding:'16px 24px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'linear-gradient(135deg,rgba(124,58,237,0.08) 0%,transparent 60%)'}}>
+                <div style={{padding:'16px 24px', borderBottom:'1px solid rgba(255,255,255,0.06)', background:'linear-gradient(135deg,rgba(124,58,237,0.08) 0%,rgba(245,158,11,0.04) 100%)'}}>
                   <p style={{fontSize:14, fontWeight:600, color:'white', marginBottom:2}}>{rewrite.company}</p>
                   <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.4)'}}>{rewrite.role}</p>
                 </div>
@@ -286,7 +282,10 @@ export default function Report() {
                             <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa'}}>✓ rewritten</span>
                             <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.25)'}}>{bullet.reason}</span>
                           </div>
-                          <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.6, marginBottom: bullet.placeholders?.length > 0 ? 8 : 0}}>{bullet.rewritten}</p>
+                          <div style={{display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12, marginBottom: bullet.placeholders?.length > 0 ? 8 : 0}}>
+                            <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#c4b5fd', lineHeight:1.6, flex:1}}>{bullet.rewritten}</p>
+                            <CopyButton text={bullet.rewritten} />
+                          </div>
                           {bullet.placeholders?.length > 0 && (
                             <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
                               {bullet.placeholders.map((p, pi) => (
@@ -343,7 +342,7 @@ export default function Report() {
           </div>
         )}
 
-        {/* Positioning */}
+        {/* Positioning — purple: intelligence output */}
         <div>
           <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em', marginBottom:14}}>POSITIONING STRATEGY</p>
           <div style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:20, overflow:'hidden'}}>
@@ -391,11 +390,20 @@ export default function Report() {
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Actions — amber: user action buttons */}
         <div style={{display:'flex', alignItems:'center', gap:16, paddingBottom:40}}>
           <button
             onClick={() => navigate('/analyze')}
-            style={{background:'#7c3aed', color:'white', border:'none', borderRadius:10, padding:'12px 24px', fontSize:14, fontWeight:500, cursor:'pointer', boxShadow:'0 0 24px rgba(124,58,237,0.3)'}}
+            style={{
+              background:'#f59e0b', color:'#1a0a00',
+              border:'none', borderRadius:10,
+              padding:'12px 24px', fontSize:14, fontWeight:600,
+              cursor:'pointer',
+              boxShadow:'0 0 20px rgba(245,158,11,0.25)',
+              transition:'all 0.2s',
+            }}
+            onMouseEnter={e => e.target.style.background='#d97706'}
+            onMouseLeave={e => e.target.style.background='#f59e0b'}
           >
             New analysis →
           </button>
@@ -406,6 +414,7 @@ export default function Report() {
             All reports
           </button>
         </div>
+
       </div>
     </AppLayout>
   )

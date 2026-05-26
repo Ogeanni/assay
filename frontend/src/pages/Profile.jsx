@@ -24,9 +24,9 @@ const labelStyle = {
 }
 
 const btnPrimary = {
-  background: '#7c3aed', color: 'white', border: 'none',
+  background: '#f59e0b', color: '#1a0a00', border: 'none',
   borderRadius: 8, padding: '10px 20px', fontSize: 13,
-  fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
+  fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
 }
 
 const btnSecondary = {
@@ -150,7 +150,7 @@ export default function Profile() {
       {/* Account info */}
       <div style={sectionStyle}>
         <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20}}>
-          <h2 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:600, fontSize:16, color:'white'}}>Account</h2>
+          <h2 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:600, fontSize:16, color:'#f59e0b', letterSpacing:'0.08em', marginBottom:12}}>Account</h2>
           <div style={{display:'flex', alignItems:'center', gap:8}}>
             <span style={{
               fontFamily:'JetBrains Mono,monospace', fontSize:11,

@@ -59,11 +59,13 @@ export default function Dashboard() {
         <button
           onClick={() => navigate('/analyze')}
           style={{
-            background:'#7c3aed', color:'white', border:'none',
-            borderRadius:10, padding:'12px 24px', fontSize:14, fontWeight:500,
+            background:'#f59e0b', color:'#1a0a00', border:'none',
+            borderRadius:10, padding:'12px 24px', fontSize:14, fontWeight:600,
             cursor:'pointer', transition:'all 0.2s',
-            boxShadow:'0 0 24px rgba(124,58,237,0.3)',
+            boxShadow:'0 0 20px rgba(245,158,11,0.25)',
           }}
+          onMouseEnter={e => e.currentTarget.style.background='#d97706'}
+          onMouseLeave={e => e.currentTarget.style.background='#f59e0b'}
         >
           New analysis →
         </button>
@@ -78,14 +80,11 @@ export default function Dashboard() {
       {error && <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#f87171'}}>{error}</p>}
 
       {!loading && groups.length === 0 && (
-        <div style={{
-          textAlign:'center', padding:'80px 32px',
-          border:'1px dashed rgba(255,255,255,0.1)', borderRadius:20,
-        }}>
+        <div style={{textAlign:'center', padding:'80px 32px', border:'1px dashed rgba(255,255,255,0.1)', borderRadius:20}}>
           <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.3)', marginBottom:16}}>No reports yet</p>
           <button
             onClick={() => navigate('/analyze')}
-            style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#a78bfa', background:'none', border:'none', cursor:'pointer', textDecoration:'underline'}}
+            style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#f59e0b', background:'none', border:'none', cursor:'pointer', textDecoration:'underline'}}
           >
             Run your first analysis →
           </button>
@@ -103,9 +102,7 @@ export default function Dashboard() {
               <div key={group.target_role} style={{
                 background: 'rgba(255,255,255,0.03)',
                 border: isExpanded ? '1px solid rgba(124,58,237,0.35)' : '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 16,
-                overflow: 'hidden',
-                transition: 'border-color 0.2s',
+                borderRadius: 16, overflow: 'hidden', transition: 'border-color 0.2s',
               }}>
                 <div style={{padding:'20px 24px'}}>
                   <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', gap:16}}>
@@ -115,8 +112,7 @@ export default function Dashboard() {
                         <span style={{
                           fontFamily:'JetBrains Mono,monospace', fontSize:11, fontWeight:500,
                           padding:'4px 10px', borderRadius:100,
-                          background: cfg.bg, color: cfg.text, border: `1px solid ${cfg.border}`,
-                          flexShrink:0,
+                          background: cfg.bg, color: cfg.text, border: `1px solid ${cfg.border}`, flexShrink:0,
                         }}>
                           {group.latest_label}
                         </span>
@@ -124,9 +120,9 @@ export default function Dashboard() {
                           <span style={{
                             fontFamily:'JetBrains Mono,monospace', fontSize:11,
                             padding:'3px 10px', borderRadius:100,
-                            background: group.improvement > 0 ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)',
-                            color: group.improvement > 0 ? '#4ade80' : '#f87171',
-                            border: `1px solid ${group.improvement > 0 ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)'}`,
+                            background: group.improvement > 0 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)',
+                            color: group.improvement > 0 ? '#fcd34d' : '#f87171',
+                            border: `1px solid ${group.improvement > 0 ? 'rgba(245,158,11,0.25)' : 'rgba(239,68,68,0.2)'}`,
                           }}>
                             {group.improvement > 0 ? '↑' : '↓'} {Math.abs(group.improvement)} pts
                           </span>
@@ -172,9 +168,12 @@ export default function Dashboard() {
                         style={{
                           fontFamily:'JetBrains Mono,monospace', fontSize:11,
                           padding:'7px 16px', borderRadius:8,
-                          background:'#7c3aed', color:'white',
+                          background:'#f59e0b', color:'#1a0a00',
                           border:'none', cursor:'pointer', transition:'all 0.2s',
+                          fontWeight:600,
                         }}
+                        onMouseEnter={e => e.target.style.background='#d97706'}
+                        onMouseLeave={e => e.target.style.background='#f59e0b'}
                       >
                         View →
                       </button>
@@ -198,11 +197,7 @@ export default function Dashboard() {
                           }}>
                             <div style={{display:'flex', alignItems:'center', gap:12}}>
                               <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.25)', width:20}}>v{vNum}</span>
-                              <span style={{
-                                fontFamily:'JetBrains Mono,monospace', fontSize:11,
-                                padding:'3px 8px', borderRadius:100,
-                                background: vc.bg, color: vc.text, border:`1px solid ${vc.border}`,
-                              }}>{v.depth_label}</span>
+                              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, padding:'3px 8px', borderRadius:100, background: vc.bg, color: vc.text, border:`1px solid ${vc.border}`}}>{v.depth_label}</span>
                               <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:13, fontWeight:500, color: isLatest ? '#a78bfa' : 'rgba(255,255,255,0.4)'}}>
                                 {v.depth_score}/100
                               </span>
