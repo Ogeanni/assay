@@ -398,7 +398,7 @@ export default function Landing() {
               </span>
             </h2>
             <p style={{fontSize:16, color:'rgba(255,255,255,0.55)', marginBottom:64, maxWidth:460}}>
-              Works for engineers, CSMs, marketers, operators, sellers — any professional, same rubric.
+              Works for engineers, CSMs, marketers, operators, sellers - any professional, same rubric.
             </p>
           </AnimateIn>
 
@@ -495,7 +495,7 @@ export default function Landing() {
                 transition:'all 0.2s',
                 animation:'btnGlow 3s ease-in-out infinite',
               }}>
-                Start free — no card needed →
+                Start free →
               </Link>
             </div>
 
