@@ -113,7 +113,7 @@ export default function Analyze() {
   return (
     <AppLayout maxWidth="800px">
       <div style={{marginBottom: 40}}>
-        <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#f59e0b', letterSpacing:'0.08em', marginBottom:12}}>NEW ANALYSIS</p>
+        <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.08em', marginBottom:12}}>NEW ANALYSIS</p>
         <h1 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:700, fontSize:36, color:'white', marginBottom:8, lineHeight:1.1}}>
           Analyze your resume
         </h1>
@@ -230,7 +230,7 @@ export default function Analyze() {
             ))}
             {completedSteps.length < STEPS.length && (
               <div style={{display:'flex', alignItems:'center', gap:12}}>
-                <div style={{width:16, height:16, borderRadius:'50%', border:'2px solid rgba(245,158,11,0.4)', borderTopColor:'#f59e0b', animation:'spin 0.8s linear infinite', flexShrink:0}} />
+                <div style={{width:16, height:16, borderRadius:'50%', border:'2px solid rgba(124,58,237,0.4)', borderTopColor:'#a78bfa', animation:'spin 0.8s linear infinite', flexShrink:0}} />
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.4)'}}>{STEPS[completedSteps.length]}</p>
               </div>
             )}
