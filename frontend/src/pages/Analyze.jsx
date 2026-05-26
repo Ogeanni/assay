@@ -107,12 +107,13 @@ export default function Analyze() {
     }
   }
 
+  const isReady = !loading && file && targetRole.trim()
   const jdLeft = JD_LIMIT - jobDescription.length
 
   return (
     <AppLayout maxWidth="800px">
       <div style={{marginBottom: 40}}>
-        <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.08em', marginBottom:12}}>NEW ANALYSIS</p>
+        <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#f59e0b', letterSpacing:'0.08em', marginBottom:12}}>NEW ANALYSIS</p>
         <h1 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:700, fontSize:36, color:'white', marginBottom:8, lineHeight:1.1}}>
           Analyze your resume
         </h1>
@@ -137,8 +138,8 @@ export default function Analyze() {
               textAlign: 'center',
               cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.5 : 1,
-              borderColor: file ? 'rgba(124,58,237,0.5)' : dragging ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.08)',
-              background: file ? 'rgba(124,58,237,0.08)' : dragging ? 'rgba(124,58,237,0.05)' : 'rgba(255,255,255,0.03)',
+              borderColor: file ? 'rgba(245,158,11,0.5)' : dragging ? 'rgba(245,158,11,0.4)' : 'rgba(255,255,255,0.08)',
+              background: file ? 'rgba(245,158,11,0.06)' : dragging ? 'rgba(245,158,11,0.04)' : 'rgba(255,255,255,0.03)',
               transition: 'all 0.2s',
             }}
           >
@@ -161,7 +162,7 @@ export default function Analyze() {
               <div>
                 <div style={{fontSize:28, marginBottom:10}}>⬆️</div>
                 <p style={{fontSize:14, color:'rgba(255,255,255,0.6)', marginBottom:4}}>
-                  Drop your PDF here or <span style={{color:'#a78bfa', textDecoration:'underline'}}>browse</span>
+                  Drop your PDF here or <span style={{color:'#f59e0b', textDecoration:'underline'}}>browse</span>
                 </p>
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.3)'}}>PDF only · max 5MB</p>
               </div>
@@ -188,10 +189,7 @@ export default function Analyze() {
           <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8}}>
             <span style={{...labelStyle, marginBottom:0}}>Job description</span>
             <div style={{display:'flex', alignItems:'center', gap:12}}>
-              <Link
-                to="/jobs"
-                style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', textDecoration:'none'}}
-              >
+              <Link to="/jobs" style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#f59e0b', textDecoration:'none'}}>
                 Browse jobs →
               </Link>
               <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color: jdLeft < 500 ? '#f59e0b' : 'rgba(255,255,255,0.3)'}}>
@@ -224,15 +222,15 @@ export default function Analyze() {
           <div style={{...card, padding:'20px 24px', display:'flex', flexDirection:'column', gap:12}}>
             {completedSteps.map((msg, i) => (
               <div key={i} style={{display:'flex', alignItems:'center', gap:12}}>
-                <div style={{width:16, height:16, borderRadius:'50%', background:'#7c3aed', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0}}>
-                  <span style={{fontSize:9, color:'white'}}>✓</span>
+                <div style={{width:16, height:16, borderRadius:'50%', background:'#f59e0b', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0}}>
+                  <span style={{fontSize:9, color:'#1a0a00'}}>✓</span>
                 </div>
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.6)'}}>{msg}</p>
               </div>
             ))}
             {completedSteps.length < STEPS.length && (
               <div style={{display:'flex', alignItems:'center', gap:12}}>
-                <div style={{width:16, height:16, borderRadius:'50%', border:'2px solid rgba(124,58,237,0.4)', borderTopColor:'#a78bfa', animation:'spin 0.8s linear infinite', flexShrink:0}} />
+                <div style={{width:16, height:16, borderRadius:'50%', border:'2px solid rgba(245,158,11,0.4)', borderTopColor:'#f59e0b', animation:'spin 0.8s linear infinite', flexShrink:0}} />
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(255,255,255,0.4)'}}>{STEPS[completedSteps.length]}</p>
               </div>
             )}
@@ -241,14 +239,15 @@ export default function Analyze() {
 
         <button
           type="submit"
-          disabled={loading || !file || !targetRole.trim()}
+          disabled={!isReady}
           style={{
-            background: loading || !file || !targetRole.trim() ? 'rgba(124,58,237,0.3)' : '#7c3aed',
-            color:'white', border:'none', borderRadius:10,
-            padding:'14px 28px', fontSize:15, fontWeight:500,
-            cursor: loading || !file || !targetRole.trim() ? 'not-allowed' : 'pointer',
-            transition:'all 0.2s',
-            boxShadow: loading || !file || !targetRole.trim() ? 'none' : '0 0 24px rgba(124,58,237,0.3)',
+            background: isReady ? '#f59e0b' : 'rgba(245,158,11,0.2)',
+            color: isReady ? '#1a0a00' : 'rgba(255,255,255,0.3)',
+            border: 'none', borderRadius: 10,
+            padding: '14px 28px', fontSize: 15, fontWeight: 600,
+            cursor: isReady ? 'pointer' : 'not-allowed',
+            transition: 'all 0.2s',
+            boxShadow: isReady ? '0 0 24px rgba(245,158,11,0.25)' : 'none',
           }}
         >
           {loading ? 'Analyzing...' : 'Analyze resume →'}
