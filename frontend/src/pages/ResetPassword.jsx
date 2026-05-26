@@ -13,10 +13,20 @@ const inputStyle = {
 
 const DiamondLogo = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" width="24" height="24">
-    <polygon points="22,1 43,22 22,43 1,22" fill="none" stroke="#7c3aed" strokeWidth="2.5"/>
-    <polygon points="22,10 34,22 22,34 10,22" fill="#7c3aed" fillOpacity="0.25"/>
-    <polygon points="22,10 34,22 22,34 10,22" fill="none" stroke="#a78bfa" strokeWidth="1.5"/>
-    <circle cx="22" cy="22" r="4.5" fill="#a78bfa"/>
+    <defs>
+      <linearGradient id="dg1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7c3aed"/>
+        <stop offset="100%" stopColor="#f59e0b"/>
+      </linearGradient>
+      <linearGradient id="dg2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#a78bfa"/>
+        <stop offset="100%" stopColor="#fcd34d"/>
+      </linearGradient>
+    </defs>
+    <polygon points="22,1 43,22 22,43 1,22" fill="none" stroke="url(#dg1)" strokeWidth="2.5"/>
+    <polygon points="22,10 34,22 22,34 10,22" fill="url(#dg1)" fillOpacity="0.35"/>
+    <polygon points="22,10 34,22 22,34 10,22" fill="none" stroke="url(#dg2)" strokeWidth="1.5"/>
+    <circle cx="22" cy="22" r="5" fill="url(#dg1)"/>
   </svg>
 )
 

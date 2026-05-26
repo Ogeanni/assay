@@ -1,7 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="fg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="fg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#fcd34d"/>
+    </linearGradient>
+  </defs>
   <rect width="32" height="32" rx="6" fill="#160d1e"/>
-  <polygon points="16,2 30,16 16,30 2,16" fill="none" stroke="#7c3aed" stroke-width="2"/>
-  <polygon points="16,9 23,16 16,23 9,16" fill="#7c3aed" fill-opacity="0.3"/>
-  <polygon points="16,9 23,16 16,23 9,16" fill="none" stroke="#a78bfa" stroke-width="1.2"/>
-  <circle cx="16" cy="16" r="3" fill="#a78bfa"/>
+  <polygon points="16,2 30,16 16,30 2,16" fill="none" stroke="url(#fg1)" stroke-width="2"/>
+  <polygon points="16,9 23,16 16,23 9,16" fill="url(#fg1)" fill-opacity="0.4"/>
+  <polygon points="16,9 23,16 16,23 9,16" fill="none" stroke="url(#fg2)" stroke-width="1.2"/>
+  <circle cx="16" cy="16" r="3.5" fill="url(#fg1)"/>
 </svg>
