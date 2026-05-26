@@ -115,15 +115,7 @@ export default function Landing() {
         <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, alignItems:'center', position:'relative', zIndex:1}}>
           {/* Left — text */}
           <div>
-            <div style={{
-              display:'inline-flex', alignItems:'center', gap:8,
-              border:'1px solid rgba(124,58,237,0.25)', borderRadius:100,
-              padding:'5px 14px', marginBottom:28,
-              background:'rgba(124,58,237,0.06)',
-            }}>
-              <span style={{width:6, height:6, borderRadius:'50%', background:'#7c3aed'}} />
-              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#7c3aed'}}>now in beta — all career types</span>
-            </div>
+            
 
             <h1 style={{
               fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800,
@@ -136,7 +128,7 @@ export default function Landing() {
             </h1>
 
             <p style={{fontSize:17, color:'#4b5563', lineHeight:1.75, marginBottom:36, maxWidth:460}}>
-              ASSAY scores your professional depth — not keywords, not titles, not years.
+              ASSAY scores your professional depth, not keywords, not titles, not years.
               What you actually did, how you thought, and whether it mattered.
             </p>
 
