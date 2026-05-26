@@ -72,12 +72,12 @@ const DiamondLogo = ({ dark = false }) => (
 
 export default function Landing() {
   return (
-    <div style={{background:'#f8f7ff', minHeight:'100vh', color:'#0f0a1e'}}>
+    <div style={{background:'#f0eef8', minHeight:'100vh', color:'#0f0a1e'}}>
 
       {/* ── Navbar ─────────────────────────────── */}
       <nav style={{
         borderBottom:'1px solid rgba(124,58,237,0.1)',
-        background:'rgba(248,247,255,0.92)',
+        background:'rgba(240,238,248,0.95)',
         backdropFilter:'blur(12px)',
         position:'sticky', top:0, zIndex:50,
       }}>
@@ -191,8 +191,28 @@ export default function Landing() {
               <img
                 src="/card.png"
                 alt="ASSAY depth score report"
-                style={{width:'100%', display:'block'}}
+                style={{width:'100%', display:'block', borderRadius:12}}
+                onError={e => {
+                  e.target.style.display = 'none'
+                  e.target.nextSibling.style.display = 'flex'
+                }}
               />
+              {/* Fallback if image missing */}
+              <div style={{display:'none', background:'#160d1e', minHeight:320, borderRadius:12, alignItems:'center', justifyContent:'center', flexDirection:'column', gap:12, padding:32}}>
+                <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.1em', marginBottom:8}}>DEPTH SCORE</div>
+                <div style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:72, fontWeight:800, color:'#a78bfa', lineHeight:1}}>83</div>
+                <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:13, color:'rgba(255,255,255,0.4)'}}>/100 · Proficient</div>
+                <div style={{marginTop:12, width:'100%', display:'flex', flexDirection:'column', gap:8}}>
+                  {['Problem Framing','Approach & Decisions','Adaptability','Impact & Outcomes'].map((d,i) => (
+                    <div key={d} style={{display:'flex', alignItems:'center', gap:12}}>
+                      <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.4)', width:120, flexShrink:0}}>{d}</div>
+                      <div style={{flex:1, background:'rgba(255,255,255,0.08)', borderRadius:100, height:5}}>
+                        <div style={{height:5, borderRadius:100, background:'linear-gradient(90deg,#7c3aed,#a78bfa)', width:`${[100,100,67,100][i]}%`}} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
             {/* Floating badge */}
             <div style={{
@@ -246,7 +266,7 @@ export default function Landing() {
           ].map((item, i) => (
             <AnimateIn key={item.n} delay={i * 0.1}>
               <div style={{
-                background:'white',
+                background:'#faf9fe',
                 border:'1px solid rgba(124,58,237,0.1)',
                 borderRadius:16, padding:'32px 28px',
                 transition:'all 0.2s', height:'100%',
@@ -329,7 +349,7 @@ export default function Landing() {
             ].map((item) => (
               <div key={item.stat} style={{
                 textAlign:'center', padding:'48px 24px',
-                background:'white',
+                background:'#faf9fe',
                 border:'1px solid rgba(124,58,237,0.1)',
                 borderRadius:16,
                 boxShadow:'0 2px 8px rgba(15,10,30,0.04)',
@@ -399,7 +419,7 @@ export default function Landing() {
         </AnimateIn>
       </section>
 
-      <footer style={{borderTop:'1px solid rgba(124,58,237,0.1)', padding:'24px 0', background:'white'}}>
+      <footer style={{borderTop:'1px solid rgba(124,58,237,0.1)', padding:'24px 0', background:'#f0eef8'}}>
         <div style={{maxWidth:1100, margin:'0 auto', padding:'0 24px', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
           <div style={{display:'flex', alignItems:'center', gap:10}}>
             <DiamondLogo />
