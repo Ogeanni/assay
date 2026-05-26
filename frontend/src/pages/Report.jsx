@@ -99,10 +99,22 @@ function CopyButton({ text }) {
   )
 }
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return width
+}
+
 export default function Report() {
   const { state } = useLocation()
   const { id } = useParams()
   const navigate = useNavigate()
+  const width = useWindowWidth()
+  const isMobile = width < 768
   const [report, setReport] = useState(state?.report || null)
   const [fetching, setFetching] = useState(false)
   const [fetchError, setFetchError] = useState(false)
@@ -154,12 +166,12 @@ export default function Report() {
 
         {/* Score card — purple: pure intelligence output */}
         <div style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:20, overflow:'hidden', boxShadow:'0 0 0 1px rgba(124,58,237,0.1)'}}>
-          <div style={{padding:'32px 36px 24px', background:'linear-gradient(135deg,rgba(124,58,237,0.1) 0%,rgba(245,158,11,0.03) 100%)', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
+          <div style={{padding: isMobile ? '20px 20px 16px' : '32px 36px 24px', background:'linear-gradient(135deg,rgba(124,58,237,0.1) 0%,rgba(245,158,11,0.03) 100%)', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
             <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:28}}>
               <div>
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(167,139,250,0.7)', letterSpacing:'0.1em', marginBottom:10}}>DEPTH SCORE</p>
                 <div style={{display:'flex', alignItems:'flex-end', gap:8}}>
-                  <span style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:80, fontWeight:800, color:'#a78bfa', lineHeight:1, fontVariantNumeric:'tabular-nums'}}>
+                  <span style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize: isMobile ? 56 : 80, fontWeight:800, color:'#a78bfa', lineHeight:1, fontVariantNumeric:'tabular-nums'}}>
                     <AnimatedNumber value={depth_score.depth_score} />
                   </span>
                   <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:22, color:'rgba(167,139,250,0.35)', marginBottom:8}}>/100</span>
@@ -179,7 +191,7 @@ export default function Report() {
           {depth_score.project_scores.map((p, idx) => {
             const pc = LABEL[p.label] || LABEL.Unclear
             return (
-              <div key={p.project_name} style={{padding:'24px 36px', borderBottom: idx < depth_score.project_scores.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none'}}>
+              <div key={p.project_name} style={{padding: isMobile ? '16px 20px' : '24px 36px', borderBottom: idx < depth_score.project_scores.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none'}}>
                 <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18}}>
                   <p style={{fontSize:15, fontWeight:600, color:'white'}}>{p.project_name}</p>
                   <div style={{display:'flex', alignItems:'center', gap:10, flexShrink:0, marginLeft:16}}>
@@ -195,7 +207,7 @@ export default function Report() {
                     {label:'Impact & Outcomes', score:p.impact_outcomes.score},
                   ].map((d, i) => (
                     <div key={d.label} style={{display:'flex', alignItems:'center', gap:16}}>
-                      <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.45)', width:180, flexShrink:0}}>{d.label}</p>
+                      <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'rgba(255,255,255,0.45)', width: isMobile ? 120 : 180, flexShrink:0}}>{d.label}</p>
                       <AnimatedBar score={d.score} delay={idx*100+i*60} />
                       <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'rgba(167,139,250,0.6)', width:24, textAlign:'right', flexShrink:0}}>{d.score}/3</p>
                     </div>
@@ -346,11 +358,11 @@ export default function Report() {
         <div>
           <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.1em', marginBottom:14}}>POSITIONING STRATEGY</p>
           <div style={{background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:20, overflow:'hidden'}}>
-            <div style={{padding:'24px 28px', borderBottom:'1px solid rgba(255,255,255,0.05)', background:'linear-gradient(135deg,rgba(124,58,237,0.08) 0%,transparent 60%)'}}>
+            <div style={{padding: isMobile ? '16px' : '24px 28px', borderBottom:'1px solid rgba(255,255,255,0.05)', background:'linear-gradient(135deg,rgba(124,58,237,0.08) 0%,transparent 60%)'}}>
               <p style={{fontSize:17, fontWeight:600, color:'white', lineHeight:1.6}}>{positioning.headline}</p>
             </div>
             <div style={{padding:'24px 28px', borderBottom:'1px solid rgba(255,255,255,0.05)'}}>
-              <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:32}}>
+              <div style={{display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:32}}>
                 {positioning.lead_with.length > 0 && (
                   <div>
                     <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', marginBottom:12}}>LEAD WITH</p>

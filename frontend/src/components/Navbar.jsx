@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -20,7 +21,19 @@ const DiamondLogo = () => (
   </svg>
 )
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return width
+}
+
 export default function Navbar({ dark = false }) {
+  const width = useWindowWidth()
+  const isMobile = width < 768
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -39,7 +52,7 @@ export default function Navbar({ dark = false }) {
       position: 'sticky', top: 0, zIndex: 50,
     }}>
       <div style={{
-        maxWidth: 1100, margin: '0 auto', padding: '0 32px',
+        maxWidth: 1100, margin: '0 auto', padding: isMobile ? '0 16px' : '0 32px',
         height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <Link to="/" style={{
@@ -56,7 +69,7 @@ export default function Navbar({ dark = false }) {
         <div style={{display: 'flex', alignItems: 'center', gap: 24}}>
           {user ? (
             <>
-              {[
+              {!isMobile && [
                 { to: '/jobs',      label: 'Jobs' },
                 { to: '/dashboard', label: 'Reports' },
                 { to: '/profile',   label: 'Profile' },
@@ -73,26 +86,40 @@ export default function Navbar({ dark = false }) {
               ))}
               <Link to="/analyze" style={{
                 fontFamily: 'JetBrains Mono, monospace',
-                fontSize: 12, fontWeight: 500,
-                background: '#7c3aed', color: 'white',
-                padding: '7px 16px', borderRadius: 8,
+                fontSize: 12, fontWeight: 600,
+                background: '#f59e0b', color: '#1a0a00',
+                padding: isMobile ? '7px 12px' : '7px 16px', borderRadius: 8,
                 textDecoration: 'none',
                 transition: 'background 0.2s',
               }}>
-                New analysis
+                {isMobile ? '+ New' : 'New analysis'}
               </Link>
-              <div style={{width: 1, height: 16, background: dark ? 'rgba(255,255,255,0.1)' : '#e4e4e7'}} />
-              <button
-                onClick={() => { logout(); navigate('/') }}
-                style={{
-                  fontFamily: 'JetBrains Mono, monospace',
-                  fontSize: 12, color: textColor,
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  transition: 'color 0.2s',
-                }}
-              >
-                Sign out
-              </button>
+              {!isMobile && <div style={{width: 1, height: 16, background: dark ? 'rgba(255,255,255,0.1)' : '#e4e4e7'}} />}
+              {!isMobile && (
+                <button
+                  onClick={() => { logout(); navigate('/') }}
+                  style={{
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: 12, color: textColor,
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    transition: 'color 0.2s',
+                  }}
+                >
+                  Sign out
+                </button>
+              )}
+              {isMobile && (
+                <button
+                  onClick={() => { logout(); navigate('/') }}
+                  style={{
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: 11, color: textColor,
+                    background: 'none', border: 'none', cursor: 'pointer',
+                  }}
+                >
+                  Out
+                </button>
+              )}
             </>
           ) : (
             <>

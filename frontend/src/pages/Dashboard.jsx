@@ -27,7 +27,19 @@ function ScoreBars({ versions }) {
   )
 }
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return width
+}
+
 export default function Dashboard() {
+  const width = useWindowWidth()
+  const isMobile = width < 768
   const { user } = useAuth()
   const navigate = useNavigate()
   const [groups, setGroups] = useState([])
@@ -44,7 +56,7 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <div style={{display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom:48}}>
+      <div style={{display:'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent:'space-between', gap:16, marginBottom:48}}>
         <div>
           <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#a78bfa', letterSpacing:'0.08em', marginBottom:12}}>REPORTS</p>
           <h1 style={{fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:700, fontSize:36, color:'white', marginBottom:8, lineHeight:1.1}}>

@@ -15,6 +15,16 @@ const RUBRIC = [
   { icon: '📈', name: 'Impact & Outcomes',        q: 'Did it change anything measurable?', score: 3 },
 ]
 
+function useWindowWidth() {
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200)
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return width
+}
+
 function useInView(threshold = 0.12) {
   const ref = useRef(null)
   const [inView, setInView] = useState(false)
@@ -81,6 +91,9 @@ const DiamondLogo = () => (
 )
 
 export default function Landing() {
+  const width = useWindowWidth()
+  const isMobile = width < 768
+  const isTablet = width < 1024
   const [heroLoaded, setHeroLoaded] = useState(false)
   useEffect(() => { setTimeout(() => setHeroLoaded(true), 100) }, [])
 
@@ -128,6 +141,10 @@ export default function Landing() {
         @keyframes slideRight { from { width:0 } }
         @keyframes marquee { from { transform:translateX(0) } to { transform:translateX(-50%) } }
         @keyframes spin { to { transform:rotate(360deg) } }
+        @media (max-width: 767px) {
+          .floating-card { display: none !important; }
+          .hero-image-badge { display: none !important; }
+        }
         .hero-badge { animation: slideIn 0.7s 0.1s ease both; }
         .hero-h1    { animation: slideIn 0.7s 0.25s ease both; }
         .hero-sub   { animation: slideIn 0.7s 0.4s ease both; }
@@ -154,23 +171,23 @@ export default function Landing() {
             <DiamondLogo />
             ASSAY
           </Link>
-          <div style={{display:'flex', alignItems:'center', gap:28}}>
+          <div style={{display:'flex', alignItems:'center', gap: isMobile ? 12 : 28}}>
             <Link to="/login" className="nav-link" style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#6b7280', textDecoration:'none', transition:'color 0.2s'}}>Sign in</Link>
             <Link to="/register" className="btn-amber" style={{
               fontFamily:'JetBrains Mono,monospace', fontSize:12, fontWeight:600,
-              background:'#f59e0b', color:'#1a0a00', padding:'9px 20px',
+              background:'#f59e0b', color:'#1a0a00', padding: isMobile ? '8px 14px' : '9px 20px',
               borderRadius:8, textDecoration:'none', transition:'all 0.2s',
               boxShadow:'0 2px 8px rgba(245,158,11,0.3)',
               animation:'btnGlow 3s ease-in-out infinite',
             }}>
-              Get started
+              {isMobile ? 'Start' : 'Get started'}
             </Link>
           </div>
         </div>
       </nav>
 
       {/* ── Hero ───────────────────────────────── */}
-      <section style={{maxWidth:1100, margin:'0 auto', padding:'80px 24px 60px', position:'relative', overflow:'hidden'}}>
+      <section style={{maxWidth:1100, margin:'0 auto', padding: isMobile ? '48px 20px 40px' : '80px 24px 60px', position:'relative', overflow:'hidden'}}>
 
         {/* Mesh gradient */}
         <div style={{
@@ -200,9 +217,17 @@ export default function Landing() {
 
 
         {/* Hero text — left column */}
-        <div style={{position:'relative', zIndex:1, display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, alignItems:'center'}}>
+        <div style={{position:'relative', zIndex:1, display:'grid', gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : '1fr 1fr', gap: isMobile ? 40 : 60, alignItems:'center'}}>
           <div>
-            
+            <div className="hero-badge" style={{
+              display:'inline-flex', alignItems:'center', gap:8,
+              border:'1px solid rgba(124,58,237,0.25)', borderRadius:100,
+              padding:'5px 14px', marginBottom:28,
+              background:'rgba(124,58,237,0.06)',
+            }}>
+              <span style={{width:6, height:6, borderRadius:'50%', background:'#7c3aed', animation:'badgePulse 2s ease-in-out infinite'}} />
+              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#7c3aed'}}>now in beta — all career types</span>
+            </div>
 
             <h1 className="hero-h1" style={{
               fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800,
@@ -221,7 +246,7 @@ export default function Landing() {
             </h1>
 
             <p className="hero-sub" style={{fontSize:17, color:'#4b5563', lineHeight:1.75, marginBottom:36, maxWidth:460}}>
-              ASSAY scores your professional depth, not keywords, not titles, not years.
+              ASSAY scores your professional depth — not keywords, not titles, not years.
               What you actually did, how you thought, and whether it mattered.
             </p>
 
@@ -251,7 +276,7 @@ export default function Landing() {
           </div>
 
           {/* Right — product screenshot */}
-          <div style={{position:'relative'}}>
+          <div style={{position:'relative', marginTop: isMobile ? 0 : 0, display: isMobile ? 'none' : 'block'}}>
             <div style={{
               position:'absolute', inset:-2, borderRadius:20,
               background:'linear-gradient(135deg, rgba(124,58,237,0.2) 0%, rgba(245,158,11,0.15) 100%)',
@@ -287,7 +312,7 @@ export default function Landing() {
               </div>
             </div>
             {/* Badge below image */}
-            <div style={{
+            <div className="hero-image-badge" style={{
               position:'absolute', bottom:-16, left:-16, zIndex:2,
               background:'white', borderRadius:12, padding:'10px 16px',
               boxShadow:'0 8px 24px rgba(15,10,30,0.12)', border:'1px solid rgba(124,58,237,0.1)',
@@ -300,8 +325,8 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Score card top-right */}
-            <div className="card-a" style={{position:'absolute', top:-18, right:-18, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
+            {/* Score card — top right, sticking out */}
+            <div className="card-a floating-card" style={{position:'absolute', top:-20, right:-24, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
               <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa', marginBottom:4}}>DEPTH SCORE</div>
               <div style={{display:'flex', alignItems:'baseline', gap:4}}>
                 <span style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:22, fontWeight:800, color:'#7c3aed'}}>83</span>
@@ -309,14 +334,14 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Rewritten bullet — bottom right */}
-            <div className="card-b" style={{position:'absolute', bottom:40, right:-20, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(245,158,11,0.2)'}}>
+            {/* Rewritten bullet — right side, vertically centred */}
+            <div className="card-b floating-card" style={{position:'absolute', top:'50%', right:-24, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(245,158,11,0.2)', transform:'translateY(-50%)'}}>
               <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#f59e0b', marginBottom:4}}>REWRITTEN BULLET</div>
               <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#0f0a1e'}}>Ready to paste ✓</div>
             </div>
 
-            {/* Gap card — mid right */}
-            <div className="card-c" style={{position:'absolute', top:'48%', right:-24, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
+            {/* Gap card — top left, peeking out */}
+            <div className="card-c floating-card" style={{position:'absolute', top:20, left:-24, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
               <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#6b7280', marginBottom:4}}>GAP IDENTIFIED</div>
               <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#7c3aed'}}>Impact & Outcomes ↑</div>
             </div>
@@ -354,7 +379,7 @@ export default function Landing() {
           </p>
         </AnimateIn>
 
-        <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16}}>
+        <div style={{display:'grid', gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : 'repeat(3,1fr)', gap:16}}>
           {[
             { n:'01', title:'Upload your resume', body:'PDF in. ASSAY reads it across all career types, not just engineering.', icon:'📄', accent:'#7c3aed', glow:'rgba(124,58,237,0.08)' },
             { n:'02', title:'Score in seconds', body:'The system evaluates your work against the rubric. Every career on its own terms.', icon:'⚡', accent:'#f59e0b', glow:'rgba(245,158,11,0.06)' },
@@ -398,11 +423,11 @@ export default function Landing() {
               </span>
             </h2>
             <p style={{fontSize:16, color:'rgba(255,255,255,0.55)', marginBottom:64, maxWidth:460}}>
-              Works for engineers, CSMs, marketers, operators, sellers - any professional, same rubric.
+              Works for engineers, CSMs, marketers, operators, sellers — any professional, same rubric.
             </p>
           </AnimateIn>
 
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:16}}>
+          <div style={{display:'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap:16}}>
             {[
               { icon:'🎯', name:'Problem Framing', q:'Did you know why it mattered?', bad:'"Managed customer onboarding"', good:'"Identified 3-day bottleneck at step 2 — redesigned workflow, cut time-to-active by 30% across 120 accounts"' },
               { icon:'🧭', name:'Approach & Decisions', q:'Did you think before acting?', bad:'"Used HubSpot for CRM"', good:'"Chose HubSpot over Salesforce — lighter config cut admin overhead by 60% for the 3-person team"' },
@@ -440,7 +465,7 @@ export default function Landing() {
       <section style={{maxWidth:1100, margin:'0 auto', padding:'100px 24px', position:'relative'}}>
         <div style={{position:'absolute', top:0, left:-80, width:350, height:350, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%)', filter:'blur(40px)', pointerEvents:'none'}} />
         <AnimateIn>
-          <div style={{display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16}}>
+          <div style={{display:'grid', gridTemplateColumns: isMobile ? '1fr' : isTablet ? 'repeat(3,1fr)' : 'repeat(3,1fr)', gap:16}}>
             {[
               {stat:'47', label:'career types supported', accent:'#7c3aed'},
               {stat:'4',  label:'universal dimensions', accent:'#f59e0b'},
@@ -471,7 +496,7 @@ export default function Landing() {
             background:'linear-gradient(135deg, #1e1030 0%, #3b0764 60%, #1e1030 100%)',
             border:'1px solid rgba(124,58,237,0.3)',
             position:'relative', overflow:'hidden',
-            display:'flex', alignItems:'center', justifyContent:'space-between', gap:40,
+            display:'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', justifyContent:'space-between', gap:40,
           }}>
             <div style={{position:'absolute', top:-100, right:-100, width:400, height:400, borderRadius:'50%', background:'radial-gradient(circle, rgba(124,58,237,0.2) 0%, transparent 70%)', filter:'blur(40px)', pointerEvents:'none'}} />
             <div style={{position:'absolute', bottom:-60, left:80, width:250, height:250, borderRadius:'50%', background:'radial-gradient(circle, rgba(245,158,11,0.12) 0%, transparent 70%)', filter:'blur(40px)', pointerEvents:'none'}} />
@@ -495,7 +520,7 @@ export default function Landing() {
                 transition:'all 0.2s',
                 animation:'btnGlow 3s ease-in-out infinite',
               }}>
-                Start free →
+                Start free — no card needed →
               </Link>
             </div>
 
