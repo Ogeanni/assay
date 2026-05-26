@@ -219,15 +219,7 @@ export default function Landing() {
         {/* Hero text — left column */}
         <div style={{position:'relative', zIndex:1, display:'grid', gridTemplateColumns: isMobile ? '1fr' : isTablet ? '1fr 1fr' : '1fr 1fr', gap: isMobile ? 40 : 60, alignItems:'center'}}>
           <div>
-            <div className="hero-badge" style={{
-              display:'inline-flex', alignItems:'center', gap:8,
-              border:'1px solid rgba(124,58,237,0.25)', borderRadius:100,
-              padding:'5px 14px', marginBottom:28,
-              background:'rgba(124,58,237,0.06)',
-            }}>
-              <span style={{width:6, height:6, borderRadius:'50%', background:'#7c3aed', animation:'badgePulse 2s ease-in-out infinite'}} />
-              <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#7c3aed'}}>now in beta — all career types</span>
-            </div>
+            
 
             <h1 className="hero-h1" style={{
               fontFamily:'Bricolage Grotesque,sans-serif', fontWeight:800,
@@ -246,7 +238,7 @@ export default function Landing() {
             </h1>
 
             <p className="hero-sub" style={{fontSize:17, color:'#4b5563', lineHeight:1.75, marginBottom:36, maxWidth:460}}>
-              ASSAY scores your professional depth — not keywords, not titles, not years.
+              ASSAY scores your professional depth, not keywords, not titles, not years.
               What you actually did, how you thought, and whether it mattered.
             </p>
 
@@ -325,26 +317,15 @@ export default function Landing() {
               </div>
             </div>
 
-            {/* Score card — top right, sticking out */}
-            <div className="card-a floating-card" style={{position:'absolute', top:-20, right:-24, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
-              <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa', marginBottom:4}}>DEPTH SCORE</div>
-              <div style={{display:'flex', alignItems:'baseline', gap:4}}>
-                <span style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:22, fontWeight:800, color:'#7c3aed'}}>83</span>
-                <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#a78bfa'}}>/100</span>
-              </div>
-            </div>
 
-            {/* Rewritten bullet — right side, vertically centred */}
-            <div className="card-b floating-card" style={{position:'absolute', top:'50%', right:-24, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(245,158,11,0.2)', transform:'translateY(-50%)'}}>
+
+            {/* Rewritten bullet — bottom right, same level as badge */}
+            <div className="card-b floating-card" style={{position:'absolute', bottom:-16, right:-16, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 8px 24px rgba(15,10,30,0.12)', border:'1px solid rgba(245,158,11,0.2)'}}>
               <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#f59e0b', marginBottom:4}}>REWRITTEN BULLET</div>
               <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#0f0a1e'}}>Ready to paste ✓</div>
             </div>
 
-            {/* Gap card — top left, peeking out */}
-            <div className="card-c floating-card" style={{position:'absolute', top:20, left:-24, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
-              <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#6b7280', marginBottom:4}}>GAP IDENTIFIED</div>
-              <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#7c3aed'}}>Impact & Outcomes ↑</div>
-            </div>
+
           </div>
         </div>
       </section>
