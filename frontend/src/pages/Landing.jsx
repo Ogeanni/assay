@@ -197,24 +197,7 @@ export default function Landing() {
         <div style={{position:'absolute', width:180, height:180, borderRadius:'50%', background:'radial-gradient(circle, rgba(167,139,250,0.13) 0%, transparent 70%)', filter:'blur(35px)', top:'40%', right:'8%', pointerEvents:'none', animation:'float3 7s ease-in-out infinite'}} />
         <div style={{position:'absolute', width:130, height:130, borderRadius:'50%', background:'radial-gradient(circle, rgba(252,211,77,0.13) 0%, transparent 70%)', filter:'blur(30px)', top:'12%', left:'38%', pointerEvents:'none', animation:'float4 9s ease-in-out infinite'}} />
 
-        {/* Floating mini cards */}
-        <div className="card-a" style={{position:'absolute', top:70, right:60, zIndex:2, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
-          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa', marginBottom:4}}>DEPTH SCORE</div>
-          <div style={{display:'flex', alignItems:'baseline', gap:4}}>
-            <span style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:22, fontWeight:800, color:'#7c3aed'}}>83</span>
-            <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#a78bfa'}}>/100 · Proficient</span>
-          </div>
-        </div>
 
-        <div className="card-b" style={{position:'absolute', bottom:80, left:60, zIndex:2, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(245,158,11,0.15)'}}>
-          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#f59e0b', marginBottom:4}}>REWRITTEN BULLET</div>
-          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#0f0a1e'}}>Ready to paste ✓</div>
-        </div>
-
-        <div className="card-c" style={{position:'absolute', top:'52%', right:30, zIndex:2, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
-          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#6b7280', marginBottom:4}}>GAP IDENTIFIED</div>
-          <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#7c3aed'}}>Impact & Outcomes ↑</div>
-        </div>
 
         {/* Hero text — left column */}
         <div style={{position:'relative', zIndex:1, display:'grid', gridTemplateColumns:'1fr 1fr', gap:60, alignItems:'center'}}>
@@ -315,6 +298,27 @@ export default function Landing() {
                 <p style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#7c3aed', marginBottom:2}}>DEPTH SCORE</p>
                 <p style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:15, fontWeight:700, color:'#0f0a1e'}}>83/100 · Proficient</p>
               </div>
+            </div>
+
+            {/* Score card top-right */}
+            <div className="card-a" style={{position:'absolute', top:-18, right:-18, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
+              <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#a78bfa', marginBottom:4}}>DEPTH SCORE</div>
+              <div style={{display:'flex', alignItems:'baseline', gap:4}}>
+                <span style={{fontFamily:'Bricolage Grotesque,sans-serif', fontSize:22, fontWeight:800, color:'#7c3aed'}}>83</span>
+                <span style={{fontFamily:'JetBrains Mono,monospace', fontSize:12, color:'#a78bfa'}}>/100</span>
+              </div>
+            </div>
+
+            {/* Rewritten bullet — bottom right */}
+            <div className="card-b" style={{position:'absolute', bottom:40, right:-20, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(245,158,11,0.2)'}}>
+              <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#f59e0b', marginBottom:4}}>REWRITTEN BULLET</div>
+              <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#0f0a1e'}}>Ready to paste ✓</div>
+            </div>
+
+            {/* Gap card — mid right */}
+            <div className="card-c" style={{position:'absolute', top:'48%', right:-24, zIndex:3, background:'white', borderRadius:12, padding:'10px 16px', boxShadow:'0 6px 24px rgba(15,10,30,0.1)', border:'1px solid rgba(124,58,237,0.12)'}}>
+              <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:10, color:'#6b7280', marginBottom:4}}>GAP IDENTIFIED</div>
+              <div style={{fontFamily:'JetBrains Mono,monospace', fontSize:11, color:'#7c3aed'}}>Impact & Outcomes ↑</div>
             </div>
           </div>
         </div>
